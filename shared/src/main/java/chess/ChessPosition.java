@@ -33,15 +33,16 @@ public class ChessPosition {
     }
 
     @Override
-    public boolean equals(Object o){
-        if(this == o){ return true;}
-        if(o == null || getClass() != o.getClass()){return false;}
-        ChessPosition obj = (ChessPosition) o;
-        return (this.getRow() == obj.getRow() && this.getColumn() == obj.getColumn());
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessPosition that = (ChessPosition) o;
+        return row == that.row && col == that.col;
     }
 
     @Override
-    public int hashCode(){
-        return Objects.hash(getRow(), getColumn());
+    public int hashCode() {
+        return Objects.hash(row, col);
     }
 }
