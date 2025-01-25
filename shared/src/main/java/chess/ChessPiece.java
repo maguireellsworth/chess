@@ -55,6 +55,8 @@ public class ChessPiece {
         switch(this.piecetype){
             case KING:
                 return new KingMoveCalculator(board, myPosition).calculateMoves();
+            case KNIGHT:
+                return new KnightMoveCalculator(board, myPosition).calculateMoves();
             default:
                 return new ArrayList<>();
         }
