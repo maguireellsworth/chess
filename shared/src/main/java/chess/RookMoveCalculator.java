@@ -11,31 +11,25 @@ public class RookMoveCalculator extends pieceMoveCalculator{
 
     public Collection<ChessMove> calculateMoves(){
         List<int[]> distance = new ArrayList<>();
-        int[][] directions = {{-1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+        int[][] directions = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
         for(int[] dir : directions){
             boolean blocked = false;
             ChessPosition currPosition = getPosition();
-            do{
-                ChessPosition nextPosition = getupdatedPosition(dir);
+            while(!blocked){
+                ChessPosition nextPosition = getupdatedPosition(currPosition, dir);
                 blocked = isBlocked(nextPosition);
                 if(!blocked){
                     distance.add(new int[]{nextPosition.getRow(), nextPosition.getColumn()});
                     currPosition = nextPosition;
+                }else if(!isOutOfBounds(nextPosition) && getBoard().getPiece(nextPosition).getTeamColor() != getBoard().getPiece(currPosition).getTeamColor()){
+                        distance.add(new int[]{nextPosition.getRow(), nextPosition.getColumn()});
+                        currPosition = nextPosition;
                 }else{
-                    //if try block fails then piece is blocked by wall
-                    try{
-                        ChessPiece nextPiece = getBoard().getPiece(nextPosition);
-                        ChessPiece currPiece = getBoard().getPiece(currPosition);
-                        if(nextPiece.getTeamColor() != currPiece.getTeamColor()){
-                            distance.add(new int[]{nextPosition.getRow(), nextPosition.getColumn()});
-                            currPosition = nextPosition;
-                        }
-                    }catch (Exception e){
-                        assert true;
-                    }
+                    break;
                 }
-            }while(!blocked);
+            }
         }
+
         return super.isMoveValid(distance.toArray(new int[0][]));
     }
 }

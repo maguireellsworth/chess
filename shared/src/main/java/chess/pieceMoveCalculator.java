@@ -17,9 +17,9 @@ public abstract class pieceMoveCalculator {
         return position;
     }
 
-    public ChessPosition getupdatedPosition(int[] direction){
-        int newRow = position.getRow() + direction[0];
-        int newCol = position.getColumn() + direction[1];
+    public ChessPosition getupdatedPosition(ChessPosition currPosition, int[] direction){
+        int newRow = currPosition.getRow() + direction[0];
+        int newCol = currPosition.getColumn() + direction[1];
         return new ChessPosition(newRow, newCol);
     }
 
@@ -32,7 +32,7 @@ public abstract class pieceMoveCalculator {
     public Collection<ChessMove> isMoveValid(int[][] ints){
         List<ChessMove> moves = new ArrayList<>();
         for(int[] item : ints){
-            ChessPosition newPosition = getupdatedPosition(item);
+            ChessPosition newPosition = getupdatedPosition(position, item);
             if(newPosition.getRow() < 1 || newPosition.getRow() > 8 || newPosition.getColumn() < 1 || newPosition.getColumn() > 8){
                 continue;
             }
