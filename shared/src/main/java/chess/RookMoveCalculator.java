@@ -18,12 +18,14 @@ public class RookMoveCalculator extends pieceMoveCalculator{
             while(!blocked){
                 ChessPosition nextPosition = getupdatedPosition(currPosition, dir);
                 blocked = isBlocked(nextPosition);
+                //not blocked so save move and continue
                 if(!blocked){
-                    distance.add(new int[]{nextPosition.getRow(), nextPosition.getColumn()});
+                    distance.add(new int[]{(nextPosition.getRow() - getPosition().getRow()), (nextPosition.getColumn() - getPosition().getColumn())});
                     currPosition = nextPosition;
-                }else if(!isOutOfBounds(nextPosition) && getBoard().getPiece(nextPosition).getTeamColor() != getBoard().getPiece(currPosition).getTeamColor()){
-                        distance.add(new int[]{nextPosition.getRow(), nextPosition.getColumn()});
-                        currPosition = nextPosition;
+                //blocked by piece - if enemy
+                }else if(!isOutOfBounds(nextPosition) && getBoard().getPiece(nextPosition) != null && getBoard().getPiece(nextPosition).getTeamColor() != getBoard().getPiece(getPosition()).getTeamColor()){
+                    distance.add(new int[]{(nextPosition.getRow() - getPosition().getRow()), (nextPosition.getColumn() - getPosition().getColumn())});
+                    currPosition = nextPosition;
                 }else{
                     break;
                 }
