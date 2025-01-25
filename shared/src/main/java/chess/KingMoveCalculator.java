@@ -12,7 +12,6 @@ public class KingMoveCalculator extends pieceMoveCalculator{
 
 
     public Collection<ChessMove> calculateMoves(){
-        List<ChessMove> moves = new ArrayList<>();
         int[][] distance = {
                 {1, -1}, {1, 0}, {1, 1},
                 {0, -1}, {0, 1},
