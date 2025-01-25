@@ -46,8 +46,7 @@ public abstract class pieceMoveCalculator {
     }
 
     //return true if next position is unobtainable
-    public boolean isBlocked(ChessPosition position, int[] direction){
-        ChessPosition nextPosition = getupdatedPosition(direction);
+    public boolean isBlocked(ChessPosition nextPosition){
         return isOutOfBounds(nextPosition) || board.getPiece(nextPosition) != null;
     }
 

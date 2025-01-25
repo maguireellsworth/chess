@@ -10,17 +10,17 @@ public class RookMoveCalculator extends pieceMoveCalculator{
     }
 
     public Collection<ChessMove> calculateMoves(){
-//        int[][] distance = {};
-        List<int[]> distance = new ArrayList<int[]>();
-        int[][] directions = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
+        List<int[]> distance = new ArrayList<>();
+        int[][] directions = {{-1, 0}, {0, 1}, {-1, 0}, {0, -1}};
         for(int[] dir : directions){
             boolean blocked = false;
             ChessPosition currPosition = getPosition();
             do{
                 ChessPosition nextPosition = getupdatedPosition(dir);
-                blocked = isBlocked(nextPosition, dir);
+                blocked = isBlocked(nextPosition);
                 if(!blocked){
                     distance.add(new int[]{nextPosition.getRow(), nextPosition.getColumn()});
+                    currPosition = nextPosition;
                 }else{
                     //if try block fails then piece is blocked by wall
                     try{
@@ -28,6 +28,7 @@ public class RookMoveCalculator extends pieceMoveCalculator{
                         ChessPiece currPiece = getBoard().getPiece(currPosition);
                         if(nextPiece.getTeamColor() != currPiece.getTeamColor()){
                             distance.add(new int[]{nextPosition.getRow(), nextPosition.getColumn()});
+                            currPosition = nextPosition;
                         }
                     }catch (Exception e){
                         assert true;
