@@ -44,18 +44,6 @@ public class ChessMove {
         return promotionPiece;
     }
 
-//    @Override
-//    public boolean equals(Object o){
-//        if(this == o){ return true;}
-//        if(o == null || getClass() != o.getClass()){return false;}
-//        ChessMove obj = (ChessMove) o;
-//        return (this.startPosition == obj.startPosition && this.endPosition == obj.endPosition);
-//    }
-//    @Override
-//    public int hashCode(){
-//        return Objects.hash(getStartPosition(), getEndPosition());
-//    }
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {
