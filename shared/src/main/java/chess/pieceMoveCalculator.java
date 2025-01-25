@@ -17,6 +17,12 @@ public abstract class pieceMoveCalculator {
         return position;
     }
 
+    public ChessPosition getupdatedPosition(int[] direction){
+        int newRow = position.getRow() + direction[0];
+        int newCol = position.getColumn() + direction[1];
+        return new ChessPosition(newRow, newCol);
+    }
+
     public ChessBoard getBoard(){
         return board;
     }
@@ -26,12 +32,10 @@ public abstract class pieceMoveCalculator {
     public Collection<ChessMove> isMoveValid(int[][] ints){
         List<ChessMove> moves = new ArrayList<>();
         for(int[] item : ints){
-            int newRow = getPosition().getRow() + item[0];
-            int newCol = getPosition().getColumn() + item[1];
-            if(newRow < 1 || newRow > 8 || newCol < 1 || newCol > 8){
+            ChessPosition newPosition = getupdatedPosition(item);
+            if(newPosition.getRow() < 1 || newPosition.getRow() > 8 || newPosition.getColumn() < 1 || newPosition.getColumn() > 8){
                 continue;
             }
-            ChessPosition newPosition = new ChessPosition(newRow, newCol);
             ChessPiece piece = board.getPiece(newPosition);
             if(piece == null || piece.getTeamColor() != board.getPiece(position).getTeamColor()){
                 ChessMove move = new ChessMove(getPosition(), newPosition, null);
@@ -40,4 +44,8 @@ public abstract class pieceMoveCalculator {
         }
         return moves;
     }
+
+//    public boolean isBlocked(ChessPosition position){
+//
+//    }
 }
