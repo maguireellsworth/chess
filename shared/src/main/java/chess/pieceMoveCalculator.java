@@ -45,7 +45,14 @@ public abstract class pieceMoveCalculator {
         return moves;
     }
 
-//    public boolean isBlocked(ChessPosition position){
-//
-//    }
+    //return true if next position is unobtainable
+    public boolean isBlocked(ChessPosition position, int[] direction){
+        ChessPosition nextPosition = getupdatedPosition(direction);
+        return isOutOfBounds(nextPosition) || board.getPiece(nextPosition) != null;
+    }
+
+    //return true if current position is out of bounds
+    public boolean isOutOfBounds(ChessPosition position){
+        return position.getRow() < 1 || position.getRow() > 8 || position.getColumn() < 1 || position.getColumn() > 8;
+    }
 }
