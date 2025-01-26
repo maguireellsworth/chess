@@ -37,13 +37,20 @@ public abstract class pieceMoveCalculator {
         List<ChessMove> moves = new ArrayList<>();
         for(int[] distance : distances){
             ChessPosition newPosition = getupdatedPosition(position, distance);
-            if(newPosition.getRow() < 1 || newPosition.getRow() > 8 || newPosition.getColumn() < 1 || newPosition.getColumn() > 8){
+            if(isOutOfBounds(newPosition)){
                 continue;
             }
             ChessPiece piece = board.getPiece(newPosition);
             if(piece == null || piece.getTeamColor() != board.getPiece(position).getTeamColor()){
-                ChessMove move = new ChessMove(getPosition(), newPosition, null);
-                moves.add(move);
+                if(board.getPiece(position).getPieceType() == ChessPiece.PieceType.PAWN && (newPosition.getRow() == 8 || newPosition.getRow() == 1)){
+                    moves.add(new ChessMove(getPosition(), newPosition, ChessPiece.PieceType.ROOK));
+                    moves.add(new ChessMove(getPosition(), newPosition, ChessPiece.PieceType.BISHOP));
+                    moves.add(new ChessMove(getPosition(), newPosition, ChessPiece.PieceType.KNIGHT));
+                    moves.add(new ChessMove(getPosition(), newPosition, ChessPiece.PieceType.QUEEN));
+                }else {
+                    ChessMove move = new ChessMove(getPosition(), newPosition, null);
+                    moves.add(move);
+                }
             }
         }
         return moves;
