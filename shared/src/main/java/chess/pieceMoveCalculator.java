@@ -17,6 +17,10 @@ public abstract class pieceMoveCalculator {
         return position;
     }
 
+    public ChessPiece getPiece(){
+        return board.getPiece(position);
+    }
+
     public ChessPosition getupdatedPosition(ChessPosition currPosition, int[] direction){
         int newRow = currPosition.getRow() + direction[0];
         int newCol = currPosition.getColumn() + direction[1];
@@ -55,7 +59,7 @@ public abstract class pieceMoveCalculator {
         return position.getRow() < 1 || position.getRow() > 8 || position.getColumn() < 1 || position.getColumn() > 8;
     }
 
-    //get all possible distances with variable moving pieces
+    //get all possible distances for pieces with variable distances
     public List<int[]> getPossibleDistances(int[][] directions){
         List<int[]> distance = new ArrayList<>();
         for(int[] dir : directions) {
@@ -68,10 +72,11 @@ public abstract class pieceMoveCalculator {
                 if (!blocked) {
                     distance.add(new int[]{(nextPosition.getRow() - getPosition().getRow()), (nextPosition.getColumn() - getPosition().getColumn())});
                     currPosition = nextPosition;
-                    //blocked by piece - if enemy
+                //blocked by piece - if enemy
                 } else if (!isOutOfBounds(nextPosition) && getBoard().getPiece(nextPosition) != null && getBoard().getPiece(nextPosition).getTeamColor() != getBoard().getPiece(getPosition()).getTeamColor()) {
                     distance.add(new int[]{(nextPosition.getRow() - getPosition().getRow()), (nextPosition.getColumn() - getPosition().getColumn())});
                     currPosition = nextPosition;
+                //blocked by wall
                 } else {
                     break;
                 }
