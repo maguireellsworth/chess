@@ -11,30 +11,42 @@ public class PawnMoveCalculator extends pieceMoveCalculator{
 
     public List<int[]> getDistances(ChessGame.TeamColor color, int[][] directions, ChessPiece piece){
         List<int[]> distances = new ArrayList<>();
-        boolean hasMoved = false;
+
+
         //check if first move
+        boolean hasMoved = false;
         if(color == ChessGame.TeamColor.WHITE && getPosition().getRow() != 2){
             hasMoved = true;
         }else if(color == ChessGame.TeamColor.BLACK && getPosition().getRow() != 7){
             hasMoved = true;
         }
+
+        ChessPosition nextPosition = getupdatedPosition(getPosition(), directions[0]);
+
         //first move
         if(!hasMoved
                 && !isBlocked(getupdatedPosition(getPosition(), directions[0]))
                 && !isBlocked(getupdatedPosition(getPosition(), directions[1]))){
             distances.add(directions[1]);
         }
+
+
         //default move forward
-        if(!isBlocked(getupdatedPosition(getPosition(), directions[0]))){
+        if(!isBlocked(nextPosition)){
             distances.add(directions[0]);
         }
+
+
         //attacking
-        if(isBlocked(getupdatedPosition(getPosition(), directions[2]))
-                || isBlocked(getupdatedPosition(getPosition(), directions[3]))){
-            if(getBoard().getPiece(getupdatedPosition(getPosition(), directions[2])).getTeamColor() != color){
+        nextPosition = getupdatedPosition(getPosition(), directions[2]);
+        if(isBlocked(nextPosition) && !isOutOfBounds(nextPosition)){
+            if(getBoard().getPiece(nextPosition).getTeamColor() != color){
                 distances.add(directions[2]);
             }
-            if(getBoard().getPiece(getupdatedPosition(getPosition(), directions[3])).getTeamColor() != color){
+        }
+        nextPosition = getupdatedPosition(getPosition(), directions[3]);
+        if(isBlocked(nextPosition) && !isOutOfBounds(nextPosition)){
+            if(getBoard().getPiece(nextPosition).getTeamColor() != color){
                 distances.add(directions[3]);
             }
         }

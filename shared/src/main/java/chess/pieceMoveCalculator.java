@@ -33,10 +33,10 @@ public abstract class pieceMoveCalculator {
 
     public abstract Collection<ChessMove> calculateMoves();
 
-    public Collection<ChessMove> isMoveValid(int[][] ints){
+    public Collection<ChessMove> isMoveValid(int[][] distances){
         List<ChessMove> moves = new ArrayList<>();
-        for(int[] item : ints){
-            ChessPosition newPosition = getupdatedPosition(position, item);
+        for(int[] distance : distances){
+            ChessPosition newPosition = getupdatedPosition(position, distance);
             if(newPosition.getRow() < 1 || newPosition.getRow() > 8 || newPosition.getColumn() < 1 || newPosition.getColumn() > 8){
                 continue;
             }
