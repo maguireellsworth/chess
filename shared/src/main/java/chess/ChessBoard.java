@@ -62,16 +62,10 @@ public class ChessBoard {
         }
     }
 
-
-    //create a blank chessboard
-    public void clearBoard(){
-        spaces = new ChessPiece[8][8];
-    }
-
     public Collection<ChessMove> getEnemyAttack (ChessGame.TeamColor color){
         List<ChessMove> positions = new ArrayList<>();
-        for(int i = 0; i < 7; i++){
-            for(int j = 0; i < 7; i++){
+        for(int i = 1; i < 8; i++){
+            for(int j = 1; i < 8; i++){
                 ChessPiece piece = getPiece(new ChessPosition(j, i));
                 if(piece == null){
                     continue;
