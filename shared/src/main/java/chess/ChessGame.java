@@ -68,16 +68,7 @@ public class ChessGame {
 
     public ChessBoard makeTestMove(ChessMove move){
         //make deep copy of board
-        ChessBoard testBoard = new ChessBoard();
-        for(int i = 1; i < 8; i++){
-            for(int j = 1; j < 8; j++){
-                ChessPosition tempPosition = new ChessPosition(j, i);
-                if(chessBoard.getPiece(tempPosition) == null){
-                    continue;
-                }
-                testBoard.addPiece(tempPosition, chessBoard.getPiece(tempPosition));
-            }
-        }
+        ChessBoard testBoard = chessBoard.makeDeepCopy();
         //move piece on testBoard
         ChessPiece piece = testBoard.getPiece(move.getStartPosition());
         testBoard.addPiece(move.getEndPosition(), piece);
@@ -99,7 +90,7 @@ public class ChessGame {
     public ChessPosition getKingPosition(ChessBoard board, TeamColor color){
         for(int i = 1; i <= 8; i++){
             for(int j = 1; j <= 8; j++){
-                ChessPosition position = new ChessPosition(j, i);
+                ChessPosition position = new ChessPosition(i, j);
                 ChessPiece piece = board.getPiece(position);
                 if(piece == null){
                     continue;

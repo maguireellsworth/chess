@@ -84,4 +84,36 @@ public class ChessPiece {
     public int hashCode() {
         return Objects.hash(pieceColor, piecetype);
     }
+
+//    @Override
+//    public String toString(){
+//        if(piecetype == null){
+//            return "O";
+//        }else{
+//            if(pieceColor == ChessGame.TeamColor.WHITE){
+//                if(piecetype == PieceType.KNIGHT){
+//                    return "N";
+//                }else{
+//                    return String.valueOf(piecetype.name().charAt(0)).toUpperCase();
+//                }
+//            }else{
+//                if(piecetype == PieceType.KNIGHT){
+//                    return "n";
+//                }else{
+//                    return String.valueOf(piecetype.name().charAt(0)).toLowerCase();
+//                }
+//            }
+//        }
+//    }
+    @Override
+    public String toString() {
+        if (piecetype == null) {
+            return "O"; // Represents an uninitialized or empty piece
+        }
+
+        char symbol = (piecetype == PieceType.KNIGHT) ? 'N' : piecetype.name().charAt(0);
+
+        // Convert case based on color
+        return (pieceColor == ChessGame.TeamColor.WHITE) ? String.valueOf(symbol) : String.valueOf(Character.toLowerCase(symbol));
+    }
 }
