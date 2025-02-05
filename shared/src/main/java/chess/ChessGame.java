@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -58,6 +59,19 @@ public class ChessGame {
         if(piece == null){
             return null;
         }
+        Collection<ChessMove> validMoves = new ArrayList<>();
+        Collection<ChessMove> possibleMoves = piece.pieceMoves(chessBoard, startPosition);
+        for(ChessMove move : possibleMoves){
+            ChessBoard testBoard = makeTestMove(move);
+            if(!isInCheck(teamTurn, testBoard)){
+                validMoves.add(move);
+            }
+        }
+        return validMoves;
+    }
+
+    public ChessBoard makeTestMove(ChessMove move){
+        
     }
 
     /**
@@ -87,6 +101,26 @@ public class ChessGame {
             }
         }else{
             enemyMoves = chessBoard.getEnemyAttack(TeamColor.WHITE);
+            for(ChessMove move: enemyMoves){
+                if(move.getEndPosition() == blackKingPos){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean isInCheck(TeamColor teamColor, ChessBoard board) {
+        Collection<ChessMove> enemyMoves;
+        if(teamColor == TeamColor.WHITE){
+            enemyMoves = board.getEnemyAttack(TeamColor.BLACK);
+            for(ChessMove move: enemyMoves){
+                if(move.getEndPosition() == whiteKingPos){
+                    return true;
+                }
+            }
+        }else{
+            enemyMoves = board.getEnemyAttack(TeamColor.WHITE);
             for(ChessMove move: enemyMoves){
                 if(move.getEndPosition() == blackKingPos){
                     return true;
