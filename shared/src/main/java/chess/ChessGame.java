@@ -59,7 +59,7 @@ public class ChessGame {
         Collection<ChessMove> possibleMoves = piece.pieceMoves(chessBoard, startPosition);
         for(ChessMove move : possibleMoves){
             ChessBoard testBoard = makeTestMove(move);
-            if(!isInCheck(teamTurn, testBoard)){
+            if(!isInCheck(piece.getTeamColor(), testBoard)){
                 validMoves.add(move);
             }
         }
@@ -112,15 +112,17 @@ public class ChessGame {
         Collection<ChessMove> enemyMoves;
         if(teamColor == TeamColor.WHITE){
             enemyMoves = chessBoard.getEnemyAttack(TeamColor.BLACK);
+            ChessPosition whiteKingPos = getKingPosition(chessBoard, TeamColor.WHITE);
             for(ChessMove move: enemyMoves){
-                if(move.getEndPosition() == getKingPosition(chessBoard, TeamColor.WHITE)){
+                if(move.getEndPosition().equals(whiteKingPos)){
                     return true;
                 }
             }
         }else{
             enemyMoves = chessBoard.getEnemyAttack(TeamColor.WHITE);
+            ChessPosition blackKingPos =  getKingPosition(chessBoard, TeamColor.BLACK);
             for(ChessMove move: enemyMoves){
-                if(move.getEndPosition() == getKingPosition(chessBoard, TeamColor.BLACK)){
+                if(move.getEndPosition().equals(blackKingPos)){
                     return true;
                 }
             }
@@ -132,15 +134,18 @@ public class ChessGame {
         Collection<ChessMove> enemyMoves;
         if(teamColor == TeamColor.WHITE){
             enemyMoves = board.getEnemyAttack(TeamColor.BLACK);
+            ChessPosition whiteKingPos = getKingPosition(board, TeamColor.WHITE);
             for(ChessMove move: enemyMoves){
-                if(move.getEndPosition() == getKingPosition(board, TeamColor.WHITE)){
+                if(move.getEndPosition().equals(whiteKingPos)){
                     return true;
                 }
             }
         }else{
             enemyMoves = board.getEnemyAttack(TeamColor.WHITE);
+            ChessPosition blackKingPos = getKingPosition(board, TeamColor.BLACK);
             for(ChessMove move: enemyMoves){
-                if(move.getEndPosition() == getKingPosition(board, TeamColor.BLACK)){
+                ChessPosition moveEndPos = move.getEndPosition();
+                if(move.getEndPosition().equals(blackKingPos)){
                     return true;
                 }
             }

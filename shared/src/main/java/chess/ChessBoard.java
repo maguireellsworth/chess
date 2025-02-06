@@ -17,8 +17,8 @@ public class ChessBoard {
 
     public ChessBoard makeDeepCopy(){
         ChessBoard testBoard = new ChessBoard();
-        for(int i = 1; i < 8; i++){
-            for(int j = 1; j < 8; j++){
+        for(int i = 1; i <= 8; i++){
+            for(int j = 1; j <= 8; j++){
                 ChessPosition tempPosition = new ChessPosition(j, i);
                 if(this.getPiece(tempPosition) == null){
                     continue;
@@ -82,9 +82,9 @@ public class ChessBoard {
         for(int i = 1; i < 8; i++){
             for(int j = 1; j < 8; j++){
                 ChessPiece piece = getPiece(new ChessPosition(i, j));
-                if(piece == null){
+                if(piece == null || piece.getPieceType() == ChessPiece.PieceType.KING){
                     continue;
-                }else if(piece.getTeamColor() != color){
+                }else if(piece.getTeamColor() == color){
                     positions.addAll(piece.pieceMoves(this, new ChessPosition(i, j)));
                 }
             }
