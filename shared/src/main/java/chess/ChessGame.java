@@ -98,12 +98,15 @@ public class ChessGame {
         }
 
         //if valid make move, if not throw error
-        if(newValidMove != null){
+        if(newValidMove != null && newValidMove.getPromotionPiece() == null) {
             chessBoard.addPiece(move.getEndPosition(), piece);
-            chessBoard.addPiece(move.getStartPosition(), null);
+        }else if(newValidMove != null && newValidMove.getPromotionPiece() != null){
+            chessBoard.addPiece(move.getEndPosition(), new ChessPiece(teamTurn, newValidMove.getPromotionPiece()));
+
         }else{
             throw new InvalidMoveException();
         }
+        chessBoard.addPiece(move.getStartPosition(), null);
 
         //change whose turn it is
         teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
