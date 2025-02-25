@@ -3,10 +3,7 @@ package server;
 import com.google.gson.Gson;
 import org.eclipse.jetty.server.Authentication;
 import resultClasses.Result;
-import services.ClearService;
-import services.InvalidUserDataException;
-import services.UserAlreadyExistsException;
-import services.UserService;
+import services.*;
 import spark.*;
 import dataaccess.AuthTokenDao;
 import dataaccess.UserDao;
@@ -34,6 +31,8 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::registerUser);
+        Spark.post("/session", this::loginUser);
+        Spark.delete("/session", this::logoutUser);
         Spark.delete("/db", this::clearDB);
 
 
@@ -60,7 +59,29 @@ public class Server {
             return gson.toJson(new Result(e.getMessage()));
         }catch (UserAlreadyExistsException e){
             res.status(403);
-            return gson.toJson((new Result(e.getMessage())));
+            return gson.toJson(new Result(e.getMessage()));
+        }
+    }
+
+    public Object loginUser(Request req, Response res) throws Exception{
+        Gson gson = new Gson();
+        UserModel user =  gson.fromJson(req.body(), UserModel.class);
+        try{
+            AuthTokenModel authToken = userService.loginUser(user);
+            return gson.toJson(new RegisterResult(null, authToken.getUsername(), authToken.getAuthToken()));
+        }catch (InvalidUserDataException e){
+            res.status(400);
+            return gson.toJson(new Result(e.getMessage()));
+        }catch (InvalidCredentialsException e){
+            res.status(401);
+            return gson.toJson(new Result(e.getMessage()));
+        }
+    }
+
+    public Object logoutUser(Request req, Response res){
+        Gson gson = new Gson();
+        try{
+            userService.logoutUser(req.headers("authorization"));
         }
     }
 
