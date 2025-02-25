@@ -1,19 +1,31 @@
 package services;
 
+import dataaccess.AuthTokenDao;
 import dataaccess.UserDao;
 import models.UserModel;
+import models.AuthTokenModel;
 import resultClasses.RegisterResult;
+
+import java.util.UUID;
 
 public class UserService {
     private UserDao userDao;
+    private AuthTokenDao authTokenDao;
 
-    public UserService(UserDao userDao){
+    public UserService(UserDao userDao, AuthTokenDao authTokenDao){
         this.userDao = userDao;
+        this.authTokenDao = authTokenDao;
     }
 
-    public RegisterResult registerUser(UserModel user){
-        if(userDao.getUser(user.getUsername())){
-
+    public AuthTokenModel registerUser(UserModel user){
+        if(userDao.getUser(user.getUsername()) == null){
+            userDao.addUser(user);
+            UUID authToken = UUID.randomUUID();
+            AuthTokenModel authTokenModel = new AuthTokenModel(user.getUsername(), authToken);
+            authTokenDao.addAuthToken(authTokenModel);
+            return authTokenModel;
+        }else{
+            return null;
         }
     }
 }
