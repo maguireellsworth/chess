@@ -16,4 +16,8 @@ public class AuthTokenDao {
     public void addAuthToken(AuthTokenModel authData){
         authTokens.put(authData.getUsername(), authData);
     }
+
+    public void clear(){
+        authTokens = new HashMap<>();
+    }
 }

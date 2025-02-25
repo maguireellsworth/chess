@@ -1,5 +1,6 @@
 package services;
 
+import com.sun.jdi.InvalidTypeException;
 import dataaccess.AuthTokenDao;
 import dataaccess.UserDao;
 import models.UserModel;
@@ -19,7 +20,7 @@ public class UserService {
 
     public AuthTokenModel registerUser(UserModel user) throws Exception{
         if(user.getUsername() == null || user.getPassword() == null || user.getEmail() == null){
-            throw new Exception("Empty fields are not allowed");
+            throw new InvalidUserDataException("Error: Empty fields are not allowed");
         }
         else if(userDao.getUser(user.getUsername()) == null){
             userDao.addUser(user);
@@ -27,7 +28,7 @@ public class UserService {
             authTokenDao.addAuthToken(authTokenModel);
             return authTokenModel;
         }else{
-            throw new Exception("User with that Username already exists");
+            throw new UserAlreadyExistsException("Error: User with that Username already exists");
         }
     }
 }

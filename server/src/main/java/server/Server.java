@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import org.eclipse.jetty.server.Authentication;
 import resultClasses.Result;
 import services.ClearService;
+import services.InvalidUserDataException;
+import services.UserAlreadyExistsException;
 import services.UserService;
 import spark.*;
 import dataaccess.AuthTokenDao;
@@ -53,9 +55,12 @@ public class Server {
         try{
             AuthTokenModel authToken = userService.registerUser(user);
             return gson.toJson(new RegisterResult(null, authToken.getUsername(), authToken.getAuthToken()));
-        }catch (Exception e){
+        }catch (InvalidUserDataException e){
             res.status(400);
             return gson.toJson(new Result(e.getMessage()));
+        }catch (UserAlreadyExistsException e){
+            res.status(403);
+            return gson.toJson((new Result(e.getMessage())));
         }
     }
 
@@ -63,8 +68,9 @@ public class Server {
         Gson gson = new Gson();
         try{
             clearService.clearDB();
-            return gson.toJson("{}");
+            return "";
         }catch (Exception e){
+            res.status(400);
             return gson.toJson(new Result(e.getMessage()));
         }
     }

@@ -17,4 +17,8 @@ public class UserDao {
     public void addUser(UserModel user){
         users.put(user.getUsername(), user);
     }
+
+    public void clear(){
+        users = new HashMap<>();
+    }
 }
