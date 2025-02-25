@@ -2,6 +2,8 @@ package server;
 
 import com.google.gson.Gson;
 import org.eclipse.jetty.server.Authentication;
+import resultClasses.Result;
+import services.ClearService;
 import services.UserService;
 import spark.*;
 import dataaccess.AuthTokenDao;
@@ -14,11 +16,13 @@ public class Server {
     private UserDao userDao;
     private AuthTokenDao authTokenDao;
     private UserService userService;
+    private ClearService clearService;
 
     public Server(){
         this.userDao= new UserDao();
         this.authTokenDao = new AuthTokenDao();
         this.userService = new UserService(userDao, authTokenDao);
+        this.clearService = new ClearService(userDao, authTokenDao);
     }
 
     public int run(int desiredPort) {
@@ -28,6 +32,7 @@ public class Server {
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::registerUser);
+        Spark.delete("/db", this::clearDB);
 
 
         //This line initializes the server and can be removed once you have a functioning endpoint 
@@ -45,11 +50,22 @@ public class Server {
     public Object registerUser(Request req, Response res) throws Exception{
         Gson gson = new Gson();
         UserModel user = gson.fromJson(req.body(), UserModel.class);
-        AuthTokenModel authToken = userService.registerUser(user);
-        if(authToken == null){
+        try{
+            AuthTokenModel authToken = userService.registerUser(user);
+            return gson.toJson(new RegisterResult(null, authToken.getUsername(), authToken.getAuthToken()));
+        }catch (Exception e){
             res.status(400);
-            return gson.toJson(new RegisterResult("User with that Username already exists", null, null));
+            return gson.toJson(new Result(e.getMessage()));
         }
-        return gson.toJson(new RegisterResult(null, authToken.getAuthToken(), authToken.getUsername()));
+    }
+
+    public Object clearDB(Request req, Response res){
+        Gson gson = new Gson();
+        try{
+            clearService.clearDB();
+            return gson.toJson("{}");
+        }catch (Exception e){
+            return gson.toJson(new Result(e.getMessage()));
+        }
     }
 }

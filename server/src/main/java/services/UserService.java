@@ -17,14 +17,17 @@ public class UserService {
         this.authTokenDao = authTokenDao;
     }
 
-    public AuthTokenModel registerUser(UserModel user){
-        if(userDao.getUser(user.getUsername()) == null){
+    public AuthTokenModel registerUser(UserModel user) throws Exception{
+        if(user.getUsername() == null || user.getPassword() == null || user.getEmail() == null){
+            throw new Exception("Empty fields are not allowed");
+        }
+        else if(userDao.getUser(user.getUsername()) == null){
             userDao.addUser(user);
             AuthTokenModel authTokenModel = new AuthTokenModel(user.getUsername(), UUID.randomUUID());
             authTokenDao.addAuthToken(authTokenModel);
             return authTokenModel;
         }else{
-            return null;
+            throw new Exception("User with that Username already exists");
         }
     }
 }

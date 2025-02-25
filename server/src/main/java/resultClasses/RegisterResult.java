@@ -6,9 +6,10 @@ public class RegisterResult extends Result {
     private String username;
     private UUID authToken;
 
-    public RegisterResult(String message, UUID authToken, String username){
+    public RegisterResult(String message, String username, UUID authToken){
         super(message);
-        this.authToken = authToken;
         this.username = username;
+        this.authToken = authToken;
+
     }
 }
