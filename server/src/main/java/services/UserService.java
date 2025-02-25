@@ -20,8 +20,7 @@ public class UserService {
     public AuthTokenModel registerUser(UserModel user){
         if(userDao.getUser(user.getUsername()) == null){
             userDao.addUser(user);
-            UUID authToken = UUID.randomUUID();
-            AuthTokenModel authTokenModel = new AuthTokenModel(user.getUsername(), authToken);
+            AuthTokenModel authTokenModel = new AuthTokenModel(user.getUsername(), UUID.randomUUID());
             authTokenDao.addAuthToken(authTokenModel);
             return authTokenModel;
         }else{

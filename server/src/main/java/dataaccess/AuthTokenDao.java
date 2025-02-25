@@ -7,13 +7,13 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AuthTokenDao {
-    private HashMap<String, UUID> authTokens;
+    private HashMap<String, AuthTokenModel> authTokens;
 
     public AuthTokenDao(){
         this.authTokens = new HashMap<>();
     }
 
-    public Map addAuthToken(AuthTokenModel authData){
-        authTokens.put(authData.getUsername(), authData.getAuthToken());
+    public void addAuthToken(AuthTokenModel authData){
+        authTokens.put(authData.getUsername(), authData);
     }
 }

@@ -1,12 +1,14 @@
 package server;
 
 import com.google.gson.Gson;
-import dataaccess.AuthTokenDao;
-import dataaccess.UserDao;
-import models.UserModel;
 import org.eclipse.jetty.server.Authentication;
 import services.UserService;
 import spark.*;
+import dataaccess.AuthTokenDao;
+import dataaccess.UserDao;
+import models.UserModel;
+import models.AuthTokenModel;
+import resultClasses.RegisterResult;
 
 public class Server {
     private UserDao userDao;
@@ -43,8 +45,11 @@ public class Server {
     public Object registerUser(Request req, Response res) throws Exception{
         Gson gson = new Gson();
         UserModel user = gson.fromJson(req.body(), UserModel.class);
-//        TODO make this return {username, authToken}
-        userService.registerUser(user);
-        return new Gson().toJson(res);
+        AuthTokenModel authToken = userService.registerUser(user);
+        if(authToken == null){
+            res.status(400);
+            return gson.toJson(new RegisterResult("User with that Username already exists", null, null));
+        }
+        return gson.toJson(new RegisterResult(null, authToken.getAuthToken(), authToken.getUsername()));
     }
 }
