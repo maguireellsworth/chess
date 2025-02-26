@@ -11,6 +11,8 @@ import models.UserModel;
 import models.AuthTokenModel;
 import resultClasses.RegisterResult;
 
+import java.util.UUID;
+
 public class Server {
     private UserDao userDao;
     private AuthTokenDao authTokenDao;
@@ -81,7 +83,11 @@ public class Server {
     public Object logoutUser(Request req, Response res){
         Gson gson = new Gson();
         try{
-            userService.logoutUser(req.headers("authorization"));
+            userService.logoutUser(UUID.fromString(req.headers("authorization")));
+            return "";
+        }catch (InvalidCredentialsException e){
+            res.status(401);
+            return gson.toJson(new Result(e.getMessage()));
         }
     }
 

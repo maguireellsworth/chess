@@ -19,6 +19,6 @@ public class UserDao {
     }
 
     public void clear(){
-        users = new HashMap<>();
+        users.clear();
     }
 }

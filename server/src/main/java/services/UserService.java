@@ -40,9 +40,17 @@ public class UserService {
         if((userData == null) || (!Objects.equals(userData.getPassword(), user.getPassword()))){
             throw new InvalidCredentialsException("Error: Username or Password is incorrect");
         }else{
-            AuthTokenModel authToken = new AuthTokenModel(user.getUsername(), UUID.randomUUID());
-            authTokenDao.addAuthToken(authToken);
-            return authToken;
+            AuthTokenModel authData = new AuthTokenModel(user.getUsername(), UUID.randomUUID());
+            authTokenDao.addAuthToken(authData);
+            return authData;
+        }
+    }
+
+    public void logoutUser(UUID authToken){
+        if(!authTokenDao.authTokenexists(authToken)){
+            throw new InvalidCredentialsException("Error: Unauthorized");
+        }else{
+            authTokenDao.deleteAuthToken(authToken);
         }
     }
 }
