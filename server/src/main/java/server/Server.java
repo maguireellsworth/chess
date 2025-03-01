@@ -1,7 +1,10 @@
 package server;
 
 import com.google.gson.Gson;
+import dataaccess.GameDao;
+import models.GameModel;
 import org.eclipse.jetty.server.Authentication;
+import resultClasses.ListResult;
 import resultClasses.Result;
 import services.*;
 import spark.*;
@@ -11,19 +14,24 @@ import models.UserModel;
 import models.AuthTokenModel;
 import resultClasses.RegisterResult;
 
+import java.util.List;
 import java.util.UUID;
 
 public class Server {
     private UserDao userDao;
     private AuthTokenDao authTokenDao;
+    private GameDao gameDao;
     private UserService userService;
     private ClearService clearService;
+    private GameService gameService;
 
     public Server(){
         this.userDao= new UserDao();
         this.authTokenDao = new AuthTokenDao();
+        this.gameDao = new GameDao();
         this.userService = new UserService(userDao, authTokenDao);
-        this.clearService = new ClearService(userDao, authTokenDao);
+        this.clearService = new ClearService(userDao, authTokenDao, gameDao);
+        this.gameService = new GameService(gameDao);
     }
 
     public int run(int desiredPort) {
@@ -35,6 +43,7 @@ public class Server {
         Spark.post("/user", this::registerUser);
         Spark.post("/session", this::loginUser);
         Spark.delete("/session", this::logoutUser);
+        Spark.get("/game", this::listGames);
         Spark.delete("/db", this::clearDB);
 
 
@@ -87,6 +96,21 @@ public class Server {
             return "";
         }catch (InvalidCredentialsException e){
             res.status(401);
+            return gson.toJson(new Result(e.getMessage()));
+        }
+    }
+
+    public Object listGames(Request req, Response res){
+        Gson gson = new Gson();
+        try{
+            if(userService.validateUser(UUID.fromString(req.headers("authorization")))){
+                List<GameModel> games = gameService.listGames();
+                return gson.toJson(new ListResult(null, games));
+            }else{
+                res.status(400);
+                return gson.toJson(new Result("Error: unauthorized"));
+            }
+        }catch (Exception e){
             return gson.toJson(new Result(e.getMessage()));
         }
     }
