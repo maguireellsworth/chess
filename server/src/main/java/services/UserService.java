@@ -1,11 +1,9 @@
 package services;
 
-import com.sun.jdi.InvalidTypeException;
 import dataaccess.AuthTokenDao;
 import dataaccess.UserDao;
 import models.UserModel;
 import models.AuthTokenModel;
-import resultClasses.RegisterResult;
 
 import java.util.Objects;
 import java.util.UUID;

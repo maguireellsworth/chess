@@ -1,4 +1,4 @@
-package resultClasses;
+package IntermediaryClasses;
 
 public class Result {
     private String message;

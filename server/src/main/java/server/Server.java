@@ -1,18 +1,16 @@
 package server;
 
+import IntermediaryClasses.*;
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.GameDao;
 import models.GameModel;
-import org.eclipse.jetty.server.Authentication;
-import resultClasses.ListResult;
-import resultClasses.Result;
 import services.*;
 import spark.*;
 import dataaccess.AuthTokenDao;
 import dataaccess.UserDao;
 import models.UserModel;
 import models.AuthTokenModel;
-import resultClasses.RegisterResult;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +29,7 @@ public class Server {
         this.gameDao = new GameDao();
         this.userService = new UserService(userDao, authTokenDao);
         this.clearService = new ClearService(userDao, authTokenDao, gameDao);
-        this.gameService = new GameService(gameDao);
+        this.gameService = new GameService(gameDao, userService);
     }
 
     public int run(int desiredPort) {
@@ -44,6 +42,7 @@ public class Server {
         Spark.post("/session", this::loginUser);
         Spark.delete("/session", this::logoutUser);
         Spark.get("/game", this::listGames);
+        Spark.post("/game", this::createGame);
         Spark.delete("/db", this::clearDB);
 
 
@@ -103,14 +102,26 @@ public class Server {
     public Object listGames(Request req, Response res){
         Gson gson = new Gson();
         try{
-            if(userService.validateUser(UUID.fromString(req.headers("authorization")))){
-                List<GameModel> games = gameService.listGames();
-                return gson.toJson(new ListResult(null, games));
-            }else{
-                res.status(400);
-                return gson.toJson(new Result("Error: unauthorized"));
-            }
+            List<GameModel> games = gameService.listGames();
+            return gson.toJson(new ListResult(null, games));
         }catch (Exception e){
+            return gson.toJson(new Result(e.getMessage()));
+        }
+    }
+
+    public Object createGame(Request req, Response res){
+        Gson gson = new Gson();
+        try{
+            CreateResult gameID = gameService.createGame(new CreateRequest(UUID.fromString(req.headers("authorization")), req.body()));
+            return gson.toJson(gameID);
+        }catch (InvalidUserDataException e){
+            res.status(400);
+            return gson.toJson(new Result(e.getMessage()));
+        }catch (InvalidCredentialsException e){
+            res.status(401);
+            return gson.toJson(new Result(e.getMessage()));
+        } catch (Exception e) {
+            res.status(500);
             return gson.toJson(new Result(e.getMessage()));
         }
     }

@@ -1,4 +1,4 @@
-package resultClasses;
+package IntermediaryClasses;
 
 import java.util.UUID;
 
