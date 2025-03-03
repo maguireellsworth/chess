@@ -64,12 +64,8 @@ public class Server {
         try{
             AuthTokenModel authToken = userService.registerUser(user);
             return gson.toJson(new RegisterResult(null, authToken.getUsername(), authToken.getAuthToken()));
-        }catch (InvalidUserDataException e){
-            res.status(400);
-            return gson.toJson(new Result(e.getMessage()));
-        }catch (UserAlreadyExistsException e){
-            res.status(403);
-            return gson.toJson(new Result(e.getMessage()));
+        }catch (Exception e) {
+            return exceptionHandler(e, res);
         }
     }
 
@@ -79,12 +75,8 @@ public class Server {
         try{
             AuthTokenModel authToken = userService.loginUser(user);
             return gson.toJson(new RegisterResult(null, authToken.getUsername(), authToken.getAuthToken()));
-        }catch (InvalidUserDataException e){
-            res.status(400);
-            return gson.toJson(new Result(e.getMessage()));
-        }catch (InvalidCredentialsException e){
-            res.status(401);
-            return gson.toJson(new Result(e.getMessage()));
+        }catch (Exception e) {
+            return exceptionHandler(e, res);
         }
     }
 
@@ -93,9 +85,8 @@ public class Server {
         try{
             userService.logoutUser(UUID.fromString(req.headers("authorization")));
             return "";
-        }catch (InvalidCredentialsException e){
-            res.status(401);
-            return gson.toJson(new Result(e.getMessage()));
+        }catch (Exception e){
+            return exceptionHandler(e, res);
         }
     }
 
@@ -105,7 +96,7 @@ public class Server {
             List<GameModel> games = gameService.listGames();
             return gson.toJson(new ListResult(null, games));
         }catch (Exception e){
-            return gson.toJson(new Result(e.getMessage()));
+            return exceptionHandler(e, res);
         }
     }
 
@@ -114,12 +105,8 @@ public class Server {
         try{
             CreateResult gameID = gameService.createGame(new CreateRequest(UUID.fromString(req.headers("authorization")), req.body()));
             return gson.toJson(gameID);
-        }catch (InvalidUserDataException e){
-            res.status(400);
-            return gson.toJson(new Result(e.getMessage()));
-        }catch (InvalidCredentialsException e){
-            res.status(401);
-            return gson.toJson(new Result(e.getMessage()));
+        }catch (Exception e){
+            return exceptionHandler(e, res);
         }
     }
 
@@ -132,15 +119,8 @@ public class Server {
             request.setAuthTokenModel(authTokenModel);
             gameService.joinGame(request);
             return "";
-        }catch (InvalidUserDataException e){
-            res.status(400);
-            return gson.toJson(new Result(e.getMessage()));
-        }catch(InvalidCredentialsException e){
-            res.status(401);
-            return gson.toJson(new Result(e.getMessage()));
-        }catch(UserAlreadyExistsException e){
-            res.status(403);
-            return gson.toJson(new Result(e.getMessage()));
+        }catch (Exception e) {
+            return exceptionHandler(e, res);
         }
     }
 
@@ -157,7 +137,8 @@ public class Server {
 
     public Object exceptionHandler(Exception e, Response res){
         Gson gson = new Gson();
-        switch (e.getClass().getName()) {
+        String type = e.getClass().getSimpleName();
+        switch (type) {
             case "InvalidUserDataException" -> res.status(400);
             case "InvalidCredentialsException" -> res.status(401);
             case "UserAlreadyExistsException" -> res.status(403);
