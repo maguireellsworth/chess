@@ -45,14 +45,18 @@ public class UserService {
     }
 
     public void logoutUser(UUID authToken){
-        if(!validateUser(authToken)){
+        if(!isValidUser(authToken)){
             throw new InvalidCredentialsException("Error: Unauthorized");
         }else{
             authTokenDao.deleteAuthToken(authToken);
         }
     }
 
-    public boolean validateUser(UUID authToken){
-        return authTokenDao.authTokenexists(authToken);
+    public boolean isValidUser(UUID authToken){
+        return authTokenDao.authTokenExists(authToken);
+    }
+
+    public AuthTokenModel getAuthTokenModel(UUID authToken){
+        return authTokenDao.getAuthTokenModel(authToken);
     }
 }
