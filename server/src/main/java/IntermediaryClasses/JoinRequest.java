@@ -13,15 +13,13 @@ public class JoinRequest {
         this.gameID = gameID;
     }
 
-    public void setAuthToken(AuthTokenModel authToken){
+    public void setAuthTokenModel(AuthTokenModel authToken){
         this.authToken = authToken;
     }
 
     public AuthTokenModel getAuthTokenModel() {
         return authToken;
     }
-
-//    public UUID
 
     public String getPlayerColor() {
         return playerColor;

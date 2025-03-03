@@ -40,11 +40,28 @@ public class GameService {
     }
 
     public void joinGame(JoinRequest request){
+        //if not authenticated or bad input
+        String color = request.getPlayerColor();
         if(!userService.isValidUser(request.getAuthTokenModel().getAuthToken())){
-            throw new InvalidCredentialsException("Error: unauthorized");
+            throw new InvalidCredentialsException("Error: Unauthorized");
+        }else if(color == null || (!color.equals("WHITE") && !color.equals("BLACK")) || request.getGameID() == 0){
+            throw new InvalidUserDataException("Error: Bad Request");
+        }
+
+        //position is already taken else set position
+        GameModel game = gameDao.getGame(request.getGameID());
+        if(request.getPlayerColor().equals("WHITE")){
+            if(game.getWhiteUsername() == null){
+                   game.setWhiteUsername(request.getAuthTokenModel().getUsername());
+            }else{
+                throw new UserAlreadyExistsException("Error: Color already selected by another player");
+            }
         }else{
-            GameModel game = gameDao.getGame(request.getGameID());
-            //TODO check player color and add if empty, throw error if not
+            if (game.getBlackUsername() == null) {
+                game.setBlackUsername(request.getAuthTokenModel().getUsername());
+            } else {
+                throw new UserAlreadyExistsException("Error: Color already selected by another player");
+            }
         }
     }
 

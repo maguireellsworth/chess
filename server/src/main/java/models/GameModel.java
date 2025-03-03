@@ -20,5 +20,29 @@ public class GameModel {
     public int getGameID(){
         return gameID;
     }
+
+    public String getWhiteUsername() {
+        return whiteUsername;
+    }
+
+    public String getBlackUsername() {
+        return blackUsername;
+    }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public ChessGame getGame() {
+        return game;
+    }
+
+    public void setWhiteUsername(String whiteUsername) {
+        this.whiteUsername = whiteUsername;
+    }
+
+    public void setBlackUsername(String blackUsername) {
+        this.blackUsername = blackUsername;
+    }
 }
 

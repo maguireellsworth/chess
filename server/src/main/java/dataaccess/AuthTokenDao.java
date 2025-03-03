@@ -3,26 +3,29 @@ package dataaccess;
 import models.AuthTokenModel;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 public class AuthTokenDao {
-    private HashMap<UUID, String> authTokens;
+    private HashMap<UUID, AuthTokenModel> authTokens;
 
     public AuthTokenDao(){
         this.authTokens = new HashMap<>();
     }
 
     public void addAuthToken(AuthTokenModel authData){
-        authTokens.put(authData.getAuthToken(), authData.getUsername());
+        authTokens.put(authData.getAuthToken(), authData);
     }
 
-    public boolean authTokenexists(UUID authToken){
+    public boolean authTokenExists(UUID authToken){
         return authTokens.containsKey(authToken);
     }
 
     public void deleteAuthToken(UUID authToken){
         authTokens.remove(authToken);
+    }
+
+    public AuthTokenModel getAuthTokenModel(UUID authToken){
+        return authTokens.get(authToken);
     }
 
     public void clear(){

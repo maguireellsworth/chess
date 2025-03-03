@@ -1,7 +1,6 @@
 package server;
 
 import IntermediaryClasses.*;
-import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.GameDao;
 import models.GameModel;
@@ -43,6 +42,7 @@ public class Server {
         Spark.delete("/session", this::logoutUser);
         Spark.get("/game", this::listGames);
         Spark.post("/game", this::createGame);
+        Spark.put("/game", this::joinGame);
         Spark.delete("/db", this::clearDB);
 
 
@@ -109,7 +109,7 @@ public class Server {
         }
     }
 
-    public Object createGame(Request req, Response res){
+    public Object createGame(Request req, Response res) throws Exception{
         Gson gson = new Gson();
         try{
             CreateResult gameID = gameService.createGame(new CreateRequest(UUID.fromString(req.headers("authorization")), req.body()));
@@ -120,8 +120,26 @@ public class Server {
         }catch (InvalidCredentialsException e){
             res.status(401);
             return gson.toJson(new Result(e.getMessage()));
-        } catch (Exception e) {
-            res.status(500);
+        }
+    }
+
+    public Object joinGame(Request req, Response res){
+        Gson gson = new Gson();
+        try{
+            UUID authToken = UUID.fromString(req.headers("authorization"));
+            AuthTokenModel authTokenModel = userService.getAuthTokenModel(authToken);
+            JoinRequest request = gson.fromJson(req.body(), JoinRequest.class);
+            request.setAuthTokenModel(authTokenModel);
+            gameService.joinGame(request);
+            return "";
+        }catch (InvalidUserDataException e){
+            res.status(400);
+            return gson.toJson(new Result(e.getMessage()));
+        }catch(InvalidCredentialsException e){
+            res.status(401);
+            return gson.toJson(new Result(e.getMessage()));
+        }catch(UserAlreadyExistsException e){
+            res.status(403);
             return gson.toJson(new Result(e.getMessage()));
         }
     }
@@ -135,5 +153,16 @@ public class Server {
             res.status(400);
             return gson.toJson(new Result(e.getMessage()));
         }
+    }
+
+    public Object exceptionHandler(Exception e, Response res){
+        Gson gson = new Gson();
+        switch (e.getClass().getName()) {
+            case "InvalidUserDataException" -> res.status(400);
+            case "InvalidCredentialsException" -> res.status(401);
+            case "UserAlreadyExistsException" -> res.status(403);
+            default -> res.status(500);
+        }
+        return gson.toJson(new Result(e.getMessage()));
     }
 }

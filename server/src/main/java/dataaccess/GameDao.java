@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class GameDao {
-    private HashMap<String, GameModel> games;
+    private HashMap<Integer, GameModel> games;
 
     public GameDao(){
-        this.games = new HashMap<>();
+        this.games = new HashMap<Integer, GameModel>();
     }
 
     public List<GameModel> listGames(){
@@ -26,7 +26,11 @@ public class GameDao {
     }
 
     public CreateResult createGame(CreateRequest request, int gameID){
-        games.put(request.getGameName(), new GameModel(new ChessGame(), request.getGameName(), gameID));
+        games.put(gameID, new GameModel(new ChessGame(), request.getGameName(), gameID));
         return new CreateResult(gameID);
+    }
+
+    public GameModel getGame(int gameID){
+        return games.get(gameID);
     }
 }
