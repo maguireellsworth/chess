@@ -2,6 +2,7 @@ package server;
 
 import IntermediaryClasses.*;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import dataaccess.GameDao;
 import models.GameModel;
 import services.*;
@@ -103,7 +104,11 @@ public class Server {
     public Object createGame(Request req, Response res) throws Exception{
         Gson gson = new Gson();
         try{
-            CreateResult gameID = gameService.createGame(new CreateRequest(UUID.fromString(req.headers("authorization")), req.body()));
+            UUID authToken = UUID.fromString(req.headers("authorization"));
+            CreateRequest request = new CreateRequest(authToken);
+            String gamename= gson.fromJson(req.body(), JsonObject.class).get("gameName").getAsString();
+            request.setGameName(gamename);
+            CreateResult gameID = gameService.createGame(request);
             return gson.toJson(gameID);
         }catch (Exception e){
             return exceptionHandler(e, res);
@@ -113,6 +118,10 @@ public class Server {
     public Object joinGame(Request req, Response res){
         Gson gson = new Gson();
         try{
+            String uuid = req.headers("authorization");
+            if(uuid.length() != 36){
+                throw new InvalidCredentialsException("Error: Unauthorized");
+            }
             UUID authToken = UUID.fromString(req.headers("authorization"));
             AuthTokenModel authTokenModel = userService.getAuthTokenModel(authToken);
             JoinRequest request = gson.fromJson(req.body(), JoinRequest.class);

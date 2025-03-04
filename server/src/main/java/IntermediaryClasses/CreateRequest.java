@@ -6,9 +6,9 @@ public class CreateRequest {
     private UUID authToken;
     private String gameName;
 
-    public CreateRequest(UUID authToken, String gameName){
+    public CreateRequest(UUID authToken){
         this.authToken = authToken;
-        this.gameName = gameName;
+        this.gameName = null;
     }
 
     public UUID getAuthToken(){
@@ -17,5 +17,9 @@ public class CreateRequest {
 
     public String getGameName(){
         return gameName;
+    }
+
+    public void setGameName(String gameName){
+        this.gameName = gameName;
     }
 }
