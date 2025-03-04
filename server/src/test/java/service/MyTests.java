@@ -1,4 +1,4 @@
-package mytests;
+package service;
 
 import dataaccess.AuthTokenDao;
 import dataaccess.GameDao;
@@ -9,7 +9,6 @@ import intermediaryclasses.JoinRequest;
 import models.AuthTokenModel;
 import models.UserModel;
 import org.junit.jupiter.api.*;
-import server.Server;
 import services.*;
 
 import java.util.UUID;
