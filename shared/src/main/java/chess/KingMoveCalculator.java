@@ -1,10 +1,8 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-public class KingMoveCalculator extends pieceMoveCalculator{
+public class KingMoveCalculator extends PieceMoveCalculator {
     public KingMoveCalculator(ChessBoard board, ChessPosition position){
         super(board, position);
     }

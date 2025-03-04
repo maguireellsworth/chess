@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class KnightMoveCalculator extends pieceMoveCalculator{
+public class KnightMoveCalculator extends PieceMoveCalculator {
     public KnightMoveCalculator(ChessBoard board, ChessPosition position){
         super(board, position);
     }

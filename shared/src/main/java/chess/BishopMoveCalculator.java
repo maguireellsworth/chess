@@ -3,7 +3,7 @@ package chess;
 import java.util.Collection;
 import java.util.List;
 
-public class BishopMoveCalculator extends pieceMoveCalculator{
+public class BishopMoveCalculator extends PieceMoveCalculator {
     public BishopMoveCalculator(ChessBoard board, ChessPosition position){
         super(board, position);
     }

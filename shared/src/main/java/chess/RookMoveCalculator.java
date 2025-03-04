@@ -1,10 +1,9 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class RookMoveCalculator extends pieceMoveCalculator{
+public class RookMoveCalculator extends PieceMoveCalculator {
     public RookMoveCalculator(ChessBoard board, ChessPosition position) {
         super(board, position);
     }

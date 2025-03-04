@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class pieceMoveCalculator {
+public abstract class PieceMoveCalculator {
     private ChessBoard board;
     private ChessPosition position;
 
-    public pieceMoveCalculator(ChessBoard board, ChessPosition position){
+    public PieceMoveCalculator(ChessBoard board, ChessPosition position){
         this.board = board;
         this.position = position;
     }
@@ -42,7 +42,8 @@ public abstract class pieceMoveCalculator {
             }
             ChessPiece piece = board.getPiece(newPosition);
             if(piece == null || piece.getTeamColor() != board.getPiece(position).getTeamColor()){
-                if(board.getPiece(position).getPieceType() == ChessPiece.PieceType.PAWN && (newPosition.getRow() == 8 || newPosition.getRow() == 1)){
+                if(board.getPiece(position).getPieceType() == ChessPiece.PieceType.PAWN
+                        && (newPosition.getRow() == 8 || newPosition.getRow() == 1)){
                     moves.add(new ChessMove(getPosition(), newPosition, ChessPiece.PieceType.ROOK));
                     moves.add(new ChessMove(getPosition(), newPosition, ChessPiece.PieceType.BISHOP));
                     moves.add(new ChessMove(getPosition(), newPosition, ChessPiece.PieceType.KNIGHT));
@@ -80,7 +81,9 @@ public abstract class pieceMoveCalculator {
                     distance.add(new int[]{(nextPosition.getRow() - getPosition().getRow()), (nextPosition.getColumn() - getPosition().getColumn())});
                     currPosition = nextPosition;
                 //blocked by piece - if enemy
-                } else if (!isOutOfBounds(nextPosition) && getBoard().getPiece(nextPosition) != null && getBoard().getPiece(nextPosition).getTeamColor() != getBoard().getPiece(getPosition()).getTeamColor()) {
+                } else if (!isOutOfBounds(nextPosition)
+                        && getBoard().getPiece(nextPosition) != null
+                        && getBoard().getPiece(nextPosition).getTeamColor() != getBoard().getPiece(getPosition()).getTeamColor()) {
                     distance.add(new int[]{(nextPosition.getRow() - getPosition().getRow()), (nextPosition.getColumn() - getPosition().getColumn())});
                     currPosition = nextPosition;
                 //blocked by wall
