@@ -77,16 +77,12 @@ public abstract class PieceMoveCalculator {
                 ChessPosition nextPosition = getupdatedPosition(currPosition, dir);
                 blocked = isBlocked(nextPosition);
                 //not blocked so save move and continue
-                if (!blocked) {
+                if (!blocked || (!isOutOfBounds(nextPosition)
+                        && getBoard().getPiece(nextPosition) != null
+                        && getBoard().getPiece(nextPosition).getTeamColor() != getBoard().getPiece(getPosition()).getTeamColor())) {
                     distance.add(new int[]{(nextPosition.getRow() - getPosition().getRow()), (nextPosition.getColumn() - getPosition().getColumn())});
                     currPosition = nextPosition;
                 //blocked by piece - if enemy
-                } else if (!isOutOfBounds(nextPosition)
-                        && getBoard().getPiece(nextPosition) != null
-                        && getBoard().getPiece(nextPosition).getTeamColor() != getBoard().getPiece(getPosition()).getTeamColor()) {
-                    distance.add(new int[]{(nextPosition.getRow() - getPosition().getRow()), (nextPosition.getColumn() - getPosition().getColumn())});
-                    currPosition = nextPosition;
-                //blocked by wall
                 } else {
                     break;
                 }

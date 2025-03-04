@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -179,17 +180,7 @@ public class ChessGame {
     public boolean isInCheckmate(TeamColor teamColor) {
         if(isInCheck(teamColor)){
             Collection<ChessMove> allValidMoves = new ArrayList<>();
-            for(int i= 1; i <= 8; i++){
-                for(int j = 1; j <= 8; j++){
-                    ChessPosition position = new ChessPosition(i, j);
-                    ChessPiece piece = chessBoard.getPiece(position);
-                    if(piece == null || piece.getTeamColor() != teamColor){
-                        continue;
-                    }else{
-                        allValidMoves.addAll(validMoves(position));
-                    }
-                }
-            }
+            canKillKing(allValidMoves, teamColor);
             return allValidMoves.isEmpty();
         }
         return false;
@@ -207,6 +198,30 @@ public class ChessGame {
         if(isInCheck(teamColor)){
             return false;
         }
+        canKillKing(allValidMoves, teamColor);
+        return allValidMoves.isEmpty();
+    }
+
+    /**
+     * Sets this game's chessboard with a given board
+     *
+     * @param board the new board to use
+     */
+    public void setBoard(ChessBoard board) {
+
+        chessBoard = board;
+    }
+
+    /**
+     * Gets the current chessboard
+     *
+     * @return the chessboard
+     */
+    public ChessBoard getBoard() {
+        return chessBoard;
+    }
+
+    public void canKillKing(Collection<ChessMove> allValidMoves, TeamColor teamColor){
         for(int i= 1; i <= 8; i++){
             for(int j = 1; j <= 8; j++){
                 ChessPosition position = new ChessPosition(i, j);
@@ -218,33 +233,5 @@ public class ChessGame {
                 }
             }
         }
-        return allValidMoves.isEmpty();
-    }
-
-    /**
-     * Sets this game's chessboard with a given board
-     *
-     * @param board the new board to use
-     */
-    public void setBoard(ChessBoard board) {
-//        board.clearBoard();
-//        for(int i = 0; i < 7; i++){
-//            for(int j = 0; j < 7; j++){
-//                ChessPosition position = new ChessPosition(j + 1, i + 1);
-//                ChessPiece piece = board.getPiece(position);
-//                if(piece.getPieceType() == ChessPiece.PieceType.KING)
-//                chessBoard.addPiece(position, piece);
-//            }
-//        }
-        chessBoard = board;
-    }
-
-    /**
-     * Gets the current chessboard
-     *
-     * @return the chessboard
-     */
-    public ChessBoard getBoard() {
-        return chessBoard;
     }
 }

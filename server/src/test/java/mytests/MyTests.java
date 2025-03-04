@@ -1,4 +1,4 @@
-package My_tests;
+package mytests;
 
 public class MyTests {
 }

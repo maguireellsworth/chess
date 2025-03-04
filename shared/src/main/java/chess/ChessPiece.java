@@ -84,27 +84,7 @@ public class ChessPiece {
     public int hashCode() {
         return Objects.hash(pieceColor, piecetype);
     }
-
-//    @Override
-//    public String toString(){
-//        if(piecetype == null){
-//            return "O";
-//        }else{
-//            if(pieceColor == ChessGame.TeamColor.WHITE){
-//                if(piecetype == PieceType.KNIGHT){
-//                    return "N";
-//                }else{
-//                    return String.valueOf(piecetype.name().charAt(0)).toUpperCase();
-//                }
-//            }else{
-//                if(piecetype == PieceType.KNIGHT){
-//                    return "n";
-//                }else{
-//                    return String.valueOf(piecetype.name().charAt(0)).toLowerCase();
-//                }
-//            }
-//        }
-//    }
+    
     @Override
     public String toString() {
         if (piecetype == null) {
