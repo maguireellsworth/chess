@@ -1,6 +1,6 @@
 package server;
 
-import IntermediaryClasses.*;
+import intermediaryclasses.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import dataaccess.GameDao;

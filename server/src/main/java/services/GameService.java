@@ -1,8 +1,8 @@
 package services;
 
-import IntermediaryClasses.CreateRequest;
-import IntermediaryClasses.CreateResult;
-import IntermediaryClasses.JoinRequest;
+import intermediaryclasses.CreateRequest;
+import intermediaryclasses.CreateResult;
+import intermediaryclasses.JoinRequest;
 import dataaccess.GameDao;
 import models.GameModel;
 

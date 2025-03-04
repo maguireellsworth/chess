@@ -1,4 +1,4 @@
-package IntermediaryClasses;
+package intermediaryclasses;
 
 public class CreateResult {
     private int gameID;

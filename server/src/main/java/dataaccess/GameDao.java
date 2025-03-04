@@ -1,14 +1,13 @@
 package dataaccess;
 
-import IntermediaryClasses.CreateRequest;
-import IntermediaryClasses.CreateResult;
+import intermediaryclasses.CreateRequest;
+import intermediaryclasses.CreateResult;
 import chess.ChessGame;
 import models.GameModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 
 public class GameDao {
     private HashMap<Integer, GameModel> games;

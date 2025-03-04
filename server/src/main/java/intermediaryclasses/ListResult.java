@@ -1,4 +1,4 @@
-package IntermediaryClasses;
+package intermediaryclasses;
 
 import models.GameModel;
 
