@@ -84,7 +84,7 @@ public class ChessPiece {
     public int hashCode() {
         return Objects.hash(pieceColor, piecetype);
     }
-    
+
     @Override
     public String toString() {
         if (piecetype == null) {

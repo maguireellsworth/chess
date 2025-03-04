@@ -17,7 +17,7 @@ public class UserService {
         this.authTokenDao = authTokenDao;
     }
 
-    public AuthTokenModel registerUser(UserModel user) throws Exception{
+    public AuthTokenModel registerUser(UserModel user){
         if(user.getUsername() == null || user.getPassword() == null || user.getEmail() == null){
             throw new InvalidUserDataException("Error: Empty fields are not allowed");
         } else if(userDao.getUser(user.getUsername()) == null){
@@ -30,7 +30,7 @@ public class UserService {
         }
     }
 
-    public AuthTokenModel loginUser(UserModel user) throws Exception{
+    public AuthTokenModel loginUser(UserModel user){
         if(user.getUsername() == null || user.getPassword() == null){
             throw new InvalidUserDataException("Error: Empty fields are not allowed");
         }
