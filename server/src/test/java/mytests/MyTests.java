@@ -3,6 +3,9 @@ package mytests;
 import dataaccess.AuthTokenDao;
 import dataaccess.GameDao;
 import dataaccess.UserDao;
+import intermediaryclasses.CreateRequest;
+import intermediaryclasses.CreateResult;
+import intermediaryclasses.JoinRequest;
 import models.AuthTokenModel;
 import models.UserModel;
 import org.junit.jupiter.api.*;
@@ -45,7 +48,6 @@ public class MyTests {
     @Test
     @DisplayName("Login Bad Password")
     public void loginBadPassword(){
-        UserModel user = new UserModel("username", "password", "email@email.com");
         UserModel badUser = new UserModel("username", "notpassword", "email@email.com");
         userService.registerUser(user);
         Assertions.assertThrows(InvalidCredentialsException.class, ()->{userService.loginUser(badUser);});
@@ -66,5 +68,22 @@ public class MyTests {
         AuthTokenModel authToken = userService.registerUser(user);
         UUID uuid = UUID.randomUUID();
         Assertions.assertThrows(InvalidCredentialsException.class, ()->{userService.logoutUser(uuid);});
+    }
+
+    @Test
+    @DisplayName("Join Game Color Already Taken")
+    public void joinGameTaken(){
+        AuthTokenModel authTokenP1 = userService.registerUser(user);
+        CreateRequest createRequest = new CreateRequest(authTokenP1.getAuthToken());
+        createRequest.setGameName("Coding is fun");
+        CreateResult result = gameService.createGame(createRequest);
+        JoinRequest joinRequestP1 = new JoinRequest("WHITE", result.getGameID());
+        joinRequestP1.setAuthTokenModel(authTokenP1);
+        gameService.joinGame(joinRequestP1);
+
+        AuthTokenModel authTokenP2 = userService.registerUser(new UserModel("x", "y", "z"));
+        JoinRequest joinRequestP2 = new JoinRequest("WHITE", result.getGameID());
+        joinRequestP2.setAuthTokenModel(authTokenP2);
+        Assertions.assertThrows(UserAlreadyExistsException.class, ()->{gameService.joinGame(joinRequestP2);});
     }
 }
