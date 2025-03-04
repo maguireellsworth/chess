@@ -7,6 +7,7 @@ import dataaccess.GameDao;
 import models.GameModel;
 
 import java.util.List;
+import java.util.UUID;
 
 public class GameService {
     private GameDao gameDao;
@@ -19,9 +20,12 @@ public class GameService {
         this.gameID = 1;
     }
 
-    public List<GameModel> listGames(){
-        
-        return gameDao.listGames();
+    public List<GameModel> listGames(UUID authToken){
+        if(userService.isValidUser(authToken)){
+            return gameDao.listGames();
+        }else{
+            throw new InvalidCredentialsException("Error: Unauthorized");
+        }
     }
 
     private void incrementID(){
@@ -35,7 +39,7 @@ public class GameService {
             incrementID();
             return  gameDao.createGame(request, gameID);
         }else{
-            throw new InvalidCredentialsException("Error: unauthorized");
+            throw new InvalidCredentialsException("Error: Unauthorized");
         }
     }
 

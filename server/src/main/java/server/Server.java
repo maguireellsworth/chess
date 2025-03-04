@@ -84,7 +84,8 @@ public class Server {
     public Object logoutUser(Request req, Response res){
         Gson gson = new Gson();
         try{
-            userService.logoutUser(UUID.fromString(req.headers("authorization")));
+            String uuidString = getValidUUIDString(req);
+            userService.logoutUser(UUID.fromString(uuidString));
             return "";
         }catch (Exception e){
             return exceptionHandler(e, res);
@@ -94,7 +95,8 @@ public class Server {
     public Object listGames(Request req, Response res){
         Gson gson = new Gson();
         try{
-            List<GameModel> games = gameService.listGames();
+            String uuidString = getValidUUIDString(req);
+            List<GameModel> games = gameService.listGames(UUID.fromString(uuidString));
             return gson.toJson(new ListResult(null, games));
         }catch (Exception e){
             return exceptionHandler(e, res);
@@ -104,7 +106,8 @@ public class Server {
     public Object createGame(Request req, Response res) throws Exception{
         Gson gson = new Gson();
         try{
-            UUID authToken = UUID.fromString(req.headers("authorization"));
+            String uuidString = getValidUUIDString(req);
+            UUID authToken = UUID.fromString(uuidString);
             CreateRequest request = new CreateRequest(authToken);
             String gamename= gson.fromJson(req.body(), JsonObject.class).get("gameName").getAsString();
             request.setGameName(gamename);
@@ -118,11 +121,8 @@ public class Server {
     public Object joinGame(Request req, Response res){
         Gson gson = new Gson();
         try{
-            String uuid = req.headers("authorization");
-            if(uuid.length() != 36){
-                throw new InvalidCredentialsException("Error: Unauthorized");
-            }
-            UUID authToken = UUID.fromString(req.headers("authorization"));
+            String uuidString = getValidUUIDString(req);
+            UUID authToken = UUID.fromString(uuidString);
             AuthTokenModel authTokenModel = userService.getAuthTokenModel(authToken);
             JoinRequest request = gson.fromJson(req.body(), JoinRequest.class);
             request.setAuthTokenModel(authTokenModel);
@@ -154,5 +154,13 @@ public class Server {
             default -> res.status(500);
         }
         return gson.toJson(new Result(e.getMessage()));
+    }
+
+    public String getValidUUIDString(Request req){
+        String uuid = req.headers("authorization");
+        if(uuid.length() != 36){
+            throw new InvalidCredentialsException("Error: Unauthorized");
+        }
+        return uuid;
     }
 }
