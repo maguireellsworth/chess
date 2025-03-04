@@ -7,10 +7,7 @@ import models.AuthTokenModel;
 import models.UserModel;
 import org.junit.jupiter.api.*;
 import server.Server;
-import services.ClearService;
-import services.GameService;
-import services.InvalidUserDataException;
-import services.UserService;
+import services.*;
 
 public class MyTests {
     UserDao userDao = new UserDao();
@@ -26,13 +23,31 @@ public class MyTests {
     public void registerUser(){
         UserModel newUser = new UserModel("username", "password", "email@email.com");
         AuthTokenModel authModel = userService.registerUser(newUser);
-        Assertions.assertEquals(newUser.getUsername(), authModel.getUsername());
+        Assertions.assertTrue(userService.isValidUser(authModel.getAuthToken()));
     }
 
     @Test
     @DisplayName("Register Bad User")
     public void registerBasUser(){
         UserModel badUser = new UserModel(null, "password", "email@email.com");
-        Exception e = Assertions.assertThrows(InvalidUserDataException.class, () -> {userService.registerUser(badUser);});
+        Assertions.assertThrows(InvalidUserDataException.class, () -> {userService.registerUser(badUser);});
+    }
+
+    @Test
+    @DisplayName("Login user")
+    public void loginUser(){
+        UserModel user = new UserModel("username", "password", "email@email.com");
+        userService.registerUser(user);
+        AuthTokenModel authTokenModel = userService.loginUser(user);
+        Assertions.assertTrue(userService.isValidUser(authTokenModel.getAuthToken()));
+    }
+
+    @Test
+    @DisplayName("Login Bad Password")
+    public void loginBadPassword(){
+        UserModel user = new UserModel("username", "password", "email@email.com");
+        UserModel badUser = new UserModel("username", "notpassword", "email@email.com");
+        userService.registerUser(user);
+        Assertions.assertThrows(InvalidCredentialsException.class, ()->{userService.loginUser(badUser);});
     }
 }
