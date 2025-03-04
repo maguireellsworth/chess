@@ -9,6 +9,8 @@ import org.junit.jupiter.api.*;
 import server.Server;
 import services.*;
 
+import java.util.UUID;
+
 public class MyTests {
     UserDao userDao = new UserDao();
     AuthTokenDao authTokenDao = new AuthTokenDao();
@@ -16,13 +18,12 @@ public class MyTests {
     UserService userService = new UserService(userDao, authTokenDao);
     ClearService clearService = new ClearService(userDao, authTokenDao, gameDao);
     GameService gameService = new GameService(gameDao, userService);
-
+    UserModel user = new UserModel("username", "password", "email@email.com");
 
     @Test
     @DisplayName("Register User")
     public void registerUser(){
-        UserModel newUser = new UserModel("username", "password", "email@email.com");
-        AuthTokenModel authModel = userService.registerUser(newUser);
+        AuthTokenModel authModel = userService.registerUser(user);
         Assertions.assertTrue(userService.isValidUser(authModel.getAuthToken()));
     }
 
@@ -36,7 +37,6 @@ public class MyTests {
     @Test
     @DisplayName("Login user")
     public void loginUser(){
-        UserModel user = new UserModel("username", "password", "email@email.com");
         userService.registerUser(user);
         AuthTokenModel authTokenModel = userService.loginUser(user);
         Assertions.assertTrue(userService.isValidUser(authTokenModel.getAuthToken()));
@@ -49,5 +49,22 @@ public class MyTests {
         UserModel badUser = new UserModel("username", "notpassword", "email@email.com");
         userService.registerUser(user);
         Assertions.assertThrows(InvalidCredentialsException.class, ()->{userService.loginUser(badUser);});
+    }
+
+    @Test
+    @DisplayName("Logout User")
+    public void logoutUser(){
+        userService.registerUser(user);
+        AuthTokenModel authTokenModel = userService.loginUser(user);
+        userService.logoutUser(authTokenModel.getAuthToken());
+        Assertions.assertFalse(userService.isValidUser(authTokenModel.getAuthToken()));
+    }
+
+    @Test
+    @DisplayName("Logout Bad AuthToken")
+    public void logoutBadAuth(){
+        AuthTokenModel authToken = userService.registerUser(user);
+        UUID uuid = UUID.randomUUID();
+        Assertions.assertThrows(InvalidCredentialsException.class, ()->{userService.logoutUser(uuid);});
     }
 }
