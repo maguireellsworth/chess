@@ -1,15 +1,12 @@
 package server;
 
-import dataaccess.MYSQLUserDao;
+import dataaccess.*;
 import intermediaryclasses.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import dataaccess.GameDao;
 import models.GameModel;
 import services.*;
 import spark.*;
-import dataaccess.AuthTokenDao;
-import dataaccess.UserDao;
 import models.UserModel;
 import models.AuthTokenModel;
 
@@ -26,7 +23,7 @@ public class Server {
 
     public Server(){
         try{
-            this.userDao= new UserDao();
+            this.userDao= new MYSQLUserDao();
             this.authTokenDao = new AuthTokenDao();
             this.gameDao = new GameDao();
             this.userService = new UserService(userDao, authTokenDao);

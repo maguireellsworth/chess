@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.AuthTokenDao;
 import dataaccess.GameDao;
+import dataaccess.MemoryUserDao;
 import dataaccess.UserDao;
 import intermediaryclasses.CreateRequest;
 import intermediaryclasses.CreateResult;
@@ -14,7 +15,7 @@ import services.*;
 import java.util.UUID;
 
 public class MyTests {
-    UserDao userDao = new UserDao();
+    UserDao userDao = new MemoryUserDao();
     AuthTokenDao authTokenDao = new AuthTokenDao();
     GameDao gameDao = new GameDao();
     UserService userService = new UserService(userDao, authTokenDao);

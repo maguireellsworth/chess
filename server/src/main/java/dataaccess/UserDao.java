@@ -3,22 +3,12 @@ package dataaccess;
 import models.UserModel;
 import java.util.HashMap;
 
-public class UserDao {
-    private HashMap<String, UserModel> users;
+public interface UserDao {
 
-    public UserDao(){
-        this.users = new HashMap<>();
-    }
+    UserModel getUser(String username);
 
-    public UserModel getUser(String username){
-        return users.get(username);
-    }
+    void addUser(UserModel user);
 
-    public void addUser(UserModel user){
-        users.put(user.getUsername(), user);
-    }
+    void clear();
 
-    public void clear(){
-        users.clear();
-    }
 }
