@@ -24,13 +24,14 @@ public class Server {
     public Server(){
         try{
             this.userDao= new MYSQLUserDao();
-            this.authTokenDao = new AuthTokenDao();
+            this.authTokenDao = new MemoryAuthTokenDao();
             this.gameDao = new GameDao();
             this.userService = new UserService(userDao, authTokenDao);
             this.clearService = new ClearService(userDao, authTokenDao, gameDao);
             this.gameService = new GameService(gameDao, userService);
         }catch (Exception e){
-            System.out.println("Database could not be initialized");
+            e.printStackTrace(); // Print the full exception for debugging
+            System.out.println("Database could not be initialized: " + e.getMessage());
         }
 
     }

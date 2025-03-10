@@ -15,9 +15,13 @@ public class ClearService {
         this.gameDao = gameDao;
     }
 
-    public void clearDB(){
-        userDao.clear();
-        authTokenDao.clear();
-        gameDao.clear();
+    public void clearDB() throws Exception{
+        try {
+            userDao.clear();
+            authTokenDao.clear();
+            gameDao.clear();
+        }catch (Exception e){
+            throw new Exception(e.getMessage());
+        }
     }
 }

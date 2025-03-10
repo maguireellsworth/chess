@@ -1,14 +1,13 @@
 package dataaccess;
 
 import models.UserModel;
-import java.util.HashMap;
 
 public interface UserDao {
 
-    UserModel getUser(String username);
+    UserModel getUser(String username) throws Exception;
 
-    void addUser(UserModel user);
+    void addUser(UserModel user) throws Exception;
 
-    void clear();
+    void clear() throws Exception;
 
 }

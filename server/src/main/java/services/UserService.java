@@ -18,30 +18,40 @@ public class UserService {
         this.authTokenDao = authTokenDao;
     }
 
-    public AuthTokenModel registerUser(UserModel user){
-        if(user.getUsername() == null || user.getPassword() == null || user.getEmail() == null){
+    public AuthTokenModel registerUser(UserModel user) throws Exception{
+        if (user.getUsername() == null || user.getPassword() == null || user.getEmail() == null) {
             throw new InvalidUserDataException("Error: Empty fields are not allowed");
-        } else if(userDao.getUser(user.getUsername()) == null){
+        }
+        try{
+            userDao.getUser(user.getUsername());
+        }catch (Exception e){
+            throw new Exception("Error: registerUser, Problem: " + e.getMessage());
+        }
+        if (userDao.getUser(user.getUsername()) == null) {
             userDao.addUser(user);
             AuthTokenModel authTokenModel = new AuthTokenModel(user.getUsername(), UUID.randomUUID());
             authTokenDao.addAuthToken(authTokenModel);
             return authTokenModel;
-        }else{
+        } else {
             throw new UserAlreadyExistsException("Error: User with that Username already exists");
         }
     }
 
-    public AuthTokenModel loginUser(UserModel user){
-        if(user.getUsername() == null || user.getPassword() == null){
-            throw new InvalidUserDataException("Error: Empty fields are not allowed");
-        }
-        UserModel userData = userDao.getUser(user.getUsername());
-        if((userData == null) || (!Objects.equals(userData.getPassword(), user.getPassword()))){
-            throw new InvalidCredentialsException("Error: Username or Password is incorrect");
-        }else{
-            AuthTokenModel authData = new AuthTokenModel(user.getUsername(), UUID.randomUUID());
-            authTokenDao.addAuthToken(authData);
-            return authData;
+    public AuthTokenModel loginUser(UserModel user) throws Exception{
+        try {
+            if (user.getUsername() == null || user.getPassword() == null) {
+                throw new InvalidUserDataException("Error: Empty fields are not allowed");
+            }
+            UserModel userData = userDao.getUser(user.getUsername());
+            if ((userData == null) || (!Objects.equals(userData.getPassword(), user.getPassword()))) {
+                throw new InvalidCredentialsException("Error: Username or Password is incorrect");
+            } else {
+                AuthTokenModel authData = new AuthTokenModel(user.getUsername(), UUID.randomUUID());
+                authTokenDao.addAuthToken(authData);
+                return authData;
+            }
+        }catch (Exception e){
+            throw new Exception("Error: login User, Problem: " + e.getMessage());
         }
     }
 
