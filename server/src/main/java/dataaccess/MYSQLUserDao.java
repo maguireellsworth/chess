@@ -49,18 +49,6 @@ public class MYSQLUserDao implements UserDao {
         executeUpdate(statement);
     }
 
-    private String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(50) UNIQUE NOT NULL,
-                password_hash VARCHAR(255) NOT NULL,
-                email VARCHAR(100) UNIQUE NOT NULL
-            );
-            
-            """
-    };
-    
     public int executeUpdate(String statement, Object... params)throws Exception{
         try(var conn = DatabaseManager.getConnection()){
             try(var preparedStatement = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
@@ -85,14 +73,23 @@ public class MYSQLUserDao implements UserDao {
         }
     }
 
+    private String createStatement =
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(50) UNIQUE NOT NULL,
+                password_hash VARCHAR(255) NOT NULL,
+                email VARCHAR(100) UNIQUE NOT NULL
+            );
+            
+            """;
+
     public void configureTable() throws Exception {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
-            for (var statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
+                try (var preparedStatement = conn.prepareStatement(createStatement)) {
                     preparedStatement.executeUpdate();
                 }
-            }
         } catch (SQLException e) {
             throw new InvalidUserDataException("Error: " + e.getMessage());
         }
