@@ -1,5 +1,6 @@
 package server;
 
+import dataaccess.MYSQLUserDao;
 import intermediaryclasses.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -24,12 +25,17 @@ public class Server {
     private GameService gameService;
 
     public Server(){
-        this.userDao= new UserDao();
-        this.authTokenDao = new AuthTokenDao();
-        this.gameDao = new GameDao();
-        this.userService = new UserService(userDao, authTokenDao);
-        this.clearService = new ClearService(userDao, authTokenDao, gameDao);
-        this.gameService = new GameService(gameDao, userService);
+        try{
+            this.userDao= new UserDao();
+            this.authTokenDao = new AuthTokenDao();
+            this.gameDao = new GameDao();
+            this.userService = new UserService(userDao, authTokenDao);
+            this.clearService = new ClearService(userDao, authTokenDao, gameDao);
+            this.gameService = new GameService(gameDao, userService);
+        }catch (Exception e){
+            System.out.println("Database could not be initialized");
+        }
+
     }
 
     public int run(int desiredPort) {

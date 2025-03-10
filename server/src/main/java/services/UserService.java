@@ -1,6 +1,7 @@
 package services;
 
 import dataaccess.AuthTokenDao;
+import dataaccess.MYSQLUserDao;
 import dataaccess.UserDao;
 import models.UserModel;
 import models.AuthTokenModel;
