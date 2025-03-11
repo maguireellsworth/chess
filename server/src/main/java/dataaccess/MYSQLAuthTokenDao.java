@@ -35,7 +35,23 @@ public class MYSQLAuthTokenDao implements AuthTokenDao{
 
     @Override
     public void deleteAuthToken(String authToken) throws Exception{
-        var statement = "DELETE FROM authtokens where authtoken = ?";
+        /*var stmt = "DELETE FROM authtokens where username = ?";
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT * from authtokens WHERE authtoken = ?";
+            try(var preparedStatement = conn.prepareStatement(statement)){
+                preparedStatement.setString(1, authToken);
+                try(var result = preparedStatement.executeQuery()){
+                    if(result.next()){
+                        String username = result.getString("username");
+                        executeUpdate(stmt, username);
+                    }
+
+                }
+            }
+        }catch (Exception e){
+            throw new Exception("Error: deleteAuthToken, Problem: " + e.getMessage());
+        }*/
+        var statement = "DELETE FROM authtokens where username = ?";
         executeUpdate(statement, authToken);
     }
 
