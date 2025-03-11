@@ -34,8 +34,9 @@ public class MYSQLAuthTokenDao implements AuthTokenDao{
     }
 
     @Override
-    public void deleteAuthToken(String authToken) {
-
+    public void deleteAuthToken(String authToken) throws Exception{
+        var statement = "DELETE FROM authtokens where authtoken = ?";
+        executeUpdate(statement, authToken);
     }
 
     @Override
@@ -44,8 +45,9 @@ public class MYSQLAuthTokenDao implements AuthTokenDao{
     }
 
     @Override
-    public void clear() {
-
+    public void clear() throws Exception{
+        var statement = "TRUNCATE TABLE authtokens";
+        executeUpdate(statement);
     }
 
     public int executeUpdate(String statement, Object... params)throws Exception{

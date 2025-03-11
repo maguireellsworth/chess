@@ -6,13 +6,13 @@ import java.util.UUID;
 
 public interface AuthTokenDao {
 
-    void addAuthToken(AuthTokenModel authModel)throws Exception;
+    void addAuthToken(AuthTokenModel authModel) throws Exception;
 
     boolean authTokenExists(String authToken) throws Exception;
 
-    void deleteAuthToken(String authToken);
+    void deleteAuthToken(String authToken) throws Exception;
 
     AuthTokenModel getAuthTokenModel(String authToken);
 
-    void clear();
+    void clear() throws Exception;
 }

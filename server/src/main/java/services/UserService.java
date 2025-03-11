@@ -24,12 +24,13 @@ public class UserService {
         if (user.getUsername() == null || user.getPassword() == null || user.getEmail() == null) {
             throw new InvalidUserDataException("Error: Empty fields are not allowed");
         }
+        UserModel usermodel;
         try{
-            userDao.getUser(user.getUsername());
+            usermodel = userDao.getUser(user.getUsername());
         }catch (Exception e){
             throw new Exception("Error: registerUser, Problem: " + e.getMessage());
         }
-        if (userDao.getUser(user.getUsername()) == null) {
+        if (usermodel == null) {
             userDao.addUser(user);
             AuthTokenModel authTokenModel = new AuthTokenModel(user.getUsername(), UUID.randomUUID().toString());
             authTokenDao.addAuthToken(authTokenModel);
