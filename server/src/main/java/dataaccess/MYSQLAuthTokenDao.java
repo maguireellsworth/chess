@@ -51,7 +51,7 @@ public class MYSQLAuthTokenDao implements AuthTokenDao{
         }catch (Exception e){
             throw new Exception("Error: deleteAuthToken, Problem: " + e.getMessage());
         }*/
-        var statement = "DELETE FROM authtokens where username = ?";
+        var statement = "DELETE FROM authtokens where authtoken = ?";
         executeUpdate(statement, authToken);
     }
 
