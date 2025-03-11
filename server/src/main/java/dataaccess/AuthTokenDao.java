@@ -14,7 +14,5 @@ public interface AuthTokenDao {
 
     AuthTokenModel getAuthTokenModel(String authToken) throws Exception;
 
-    void updateAuthToken(AuthTokenModel authModel) throws Exception;
-
     void clear() throws Exception;
 }

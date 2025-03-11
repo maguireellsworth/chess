@@ -62,12 +62,6 @@ public class MYSQLAuthTokenDao implements AuthTokenDao{
     }
 
     @Override
-    public void updateAuthToken(AuthTokenModel authModel) throws Exception {
-        var statement = "UPDATE authtokens SET authtoken = ? WHERE username = ?";
-        executeUpdate(statement, authModel.getAuthToken(), authModel.getUsername());
-    }
-
-    @Override
     public void clear() throws Exception{
         var statement = "TRUNCATE TABLE authtokens";
         executeUpdate(statement);
@@ -101,7 +95,7 @@ public class MYSQLAuthTokenDao implements AuthTokenDao{
             """
             CREATE TABLE IF NOT EXISTS authtokens (
                 authtoken char(36) UNIQUE NOT NULL,
-                username varchar(50) UNIQUE NOT NULL
+                username varchar(50) NOT NULL
             );
             """;
 
