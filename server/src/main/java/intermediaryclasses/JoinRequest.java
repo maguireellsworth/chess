@@ -3,22 +3,22 @@ package intermediaryclasses;
 import models.AuthTokenModel;
 
 public class JoinRequest {
-    private AuthTokenModel authToken;
+    private AuthTokenModel authModel;
     private String playerColor;
     private int gameID;
 
     public JoinRequest(String playerColor, int gameID){
-        this.authToken = null;
+        this.authModel = null;
         this.playerColor = playerColor;
         this.gameID = gameID;
     }
 
     public void setAuthTokenModel(AuthTokenModel authToken){
-        this.authToken = authToken;
+        this.authModel = authToken;
     }
 
     public AuthTokenModel getAuthTokenModel() {
-        return authToken;
+        return authModel;
     }
 
     public String getPlayerColor() {

@@ -12,7 +12,9 @@ public interface AuthTokenDao {
 
     void deleteAuthToken(String authToken) throws Exception;
 
-    AuthTokenModel getAuthTokenModel(String authToken);
+    AuthTokenModel getAuthTokenModel(String authToken) throws Exception;
+
+    void updateAuthToken(AuthTokenModel authModel) throws Exception;
 
     void clear() throws Exception;
 }

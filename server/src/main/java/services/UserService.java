@@ -71,7 +71,7 @@ public class UserService {
         return authTokenDao.authTokenExists(authToken);
     }
 
-    public AuthTokenModel getAuthTokenModel(String authToken){
+    public AuthTokenModel getAuthTokenModel(String authToken) throws Exception{
         return authTokenDao.getAuthTokenModel(authToken);
     }
 }
