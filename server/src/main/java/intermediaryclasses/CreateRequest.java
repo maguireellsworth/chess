@@ -3,15 +3,15 @@ package intermediaryclasses;
 import java.util.UUID;
 
 public class CreateRequest {
-    private UUID authToken;
+    private String authToken;
     private String gameName;
 
-    public CreateRequest(UUID authToken){
+    public CreateRequest(String authToken){
         this.authToken = authToken;
         this.gameName = null;
     }
 
-    public UUID getAuthToken(){
+    public String getAuthToken(){
         return authToken;
     }
 

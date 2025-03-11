@@ -24,7 +24,7 @@ public class Server {
     public Server(){
         try{
             this.userDao= new MYSQLUserDao();
-            this.authTokenDao = new MemoryAuthTokenDao();
+            this.authTokenDao = new MYSQLAuthTokenDao();
             this.gameDao = new GameDao();
             this.userService = new UserService(userDao, authTokenDao);
             this.clearService = new ClearService(userDao, authTokenDao, gameDao);
@@ -88,8 +88,7 @@ public class Server {
     public Object logoutUser(Request req, Response res){
         Gson gson = new Gson();
         try{
-            String uuidString = getValidUUIDString(req);
-            userService.logoutUser(UUID.fromString(uuidString));
+            userService.logoutUser(getValidUUIDString(req));
             return "";
         }catch (Exception e){
             return exceptionHandler(e, res);
@@ -99,8 +98,7 @@ public class Server {
     public Object listGames(Request req, Response res){
         Gson gson = new Gson();
         try{
-            String uuidString = getValidUUIDString(req);
-            List<GameModel> games = gameService.listGames(UUID.fromString(uuidString));
+            List<GameModel> games = gameService.listGames(getValidUUIDString(req));
             return gson.toJson(new ListResult(null, games));
         }catch (Exception e){
             return exceptionHandler(e, res);
@@ -110,9 +108,7 @@ public class Server {
     public Object createGame(Request req, Response res) throws Exception{
         Gson gson = new Gson();
         try{
-            String uuidString = getValidUUIDString(req);
-            UUID authToken = UUID.fromString(uuidString);
-            CreateRequest request = new CreateRequest(authToken);
+            CreateRequest request = new CreateRequest(getValidUUIDString(req));
             String gamename= gson.fromJson(req.body(), JsonObject.class).get("gameName").getAsString();
             request.setGameName(gamename);
             CreateResult gameID = gameService.createGame(request);
@@ -125,9 +121,7 @@ public class Server {
     public Object joinGame(Request req, Response res){
         Gson gson = new Gson();
         try{
-            String uuidString = getValidUUIDString(req);
-            UUID authToken = UUID.fromString(uuidString);
-            AuthTokenModel authTokenModel = userService.getAuthTokenModel(authToken);
+            AuthTokenModel authTokenModel = userService.getAuthTokenModel(getValidUUIDString(req));
             JoinRequest request = gson.fromJson(req.body(), JoinRequest.class);
             request.setAuthTokenModel(authTokenModel);
             gameService.joinGame(request);

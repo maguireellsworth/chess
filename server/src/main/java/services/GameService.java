@@ -20,7 +20,7 @@ public class GameService {
         this.gameID = 1;
     }
 
-    public List<GameModel> listGames(UUID authToken){
+    public List<GameModel> listGames(String authToken)throws Exception{
         if(userService.isValidUser(authToken)){
             return gameDao.listGames();
         }else{
@@ -32,7 +32,7 @@ public class GameService {
         gameID += 1;
     }
 
-    public CreateResult createGame(CreateRequest request){
+    public CreateResult createGame(CreateRequest request)throws Exception{
         if(request.getGameName() == null){
             throw new InvalidUserDataException("Error: Empty fields are not allowed");
         } else if(userService.isValidUser(request.getAuthToken())){
@@ -43,7 +43,7 @@ public class GameService {
         }
     }
 
-    public void joinGame(JoinRequest request){
+    public void joinGame(JoinRequest request)throws Exception{
         //if not authenticated or bad input
         String color = request.getPlayerColor();
         if(!userService.isValidUser(request.getAuthTokenModel().getAuthToken())){

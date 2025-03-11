@@ -4,9 +4,9 @@ import java.util.UUID;
 
 public class AuthTokenModel {
     private String username;
-    private UUID authToken;
+    private String authToken;
 
-    public AuthTokenModel(String username, UUID authToken){
+    public AuthTokenModel(String username, String authToken){
         this.username = username;
         this.authToken = authToken;
     }
@@ -15,7 +15,7 @@ public class AuthTokenModel {
         return username;
     }
 
-    public UUID getAuthToken(){
+    public String getAuthToken(){
         return authToken;
     }
 }

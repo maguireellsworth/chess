@@ -5,7 +5,9 @@ import dataaccess.MYSQLUserDao;
 import dataaccess.UserDao;
 import models.UserModel;
 import models.AuthTokenModel;
+import org.mindrot.jbcrypt.BCrypt;
 
+import java.security.spec.ECField;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -29,7 +31,7 @@ public class UserService {
         }
         if (userDao.getUser(user.getUsername()) == null) {
             userDao.addUser(user);
-            AuthTokenModel authTokenModel = new AuthTokenModel(user.getUsername(), UUID.randomUUID());
+            AuthTokenModel authTokenModel = new AuthTokenModel(user.getUsername(), UUID.randomUUID().toString());
             authTokenDao.addAuthToken(authTokenModel);
             return authTokenModel;
         } else {
@@ -38,24 +40,25 @@ public class UserService {
     }
 
     public AuthTokenModel loginUser(UserModel user) throws Exception{
-        try {
-            if (user.getUsername() == null || user.getPassword() == null) {
-                throw new InvalidUserDataException("Error: Empty fields are not allowed");
-            }
-            UserModel userData = userDao.getUser(user.getUsername());
-            if ((userData == null) || (!Objects.equals(userData.getPassword(), user.getPassword()))) {
-                throw new InvalidCredentialsException("Error: Username or Password is incorrect");
-            } else {
-                AuthTokenModel authData = new AuthTokenModel(user.getUsername(), UUID.randomUUID());
-                authTokenDao.addAuthToken(authData);
-                return authData;
-            }
+        if (user.getUsername() == null || user.getPassword() == null) {
+            throw new InvalidUserDataException("Error: Empty fields are not allowed");
+        }
+        UserModel userModel = null;
+        try{
+            userModel = userDao.getUser(user.getUsername());
         }catch (Exception e){
-            throw new Exception("Error: login User, Problem: " + e.getMessage());
+            throw new Exception("Error: loginUser, Problem: " + e.getMessage());
+        }
+        if ((userModel == null) || !BCrypt.checkpw(user.getPassword(), userModel.getPassword())) {
+            throw new InvalidCredentialsException("Error: Username or Password is incorrect ");
+        } else {
+            AuthTokenModel authData = new AuthTokenModel(user.getUsername(), UUID.randomUUID().toString());
+            authTokenDao.addAuthToken(authData);
+            return authData;
         }
     }
 
-    public void logoutUser(UUID authToken){
+    public void logoutUser(String authToken) throws Exception{
         if(!isValidUser(authToken)){
             throw new InvalidCredentialsException("Error: Unauthorized");
         }else{
@@ -63,11 +66,11 @@ public class UserService {
         }
     }
 
-    public boolean isValidUser(UUID authToken){
+    public boolean isValidUser(String authToken) throws Exception{
         return authTokenDao.authTokenExists(authToken);
     }
 
-    public AuthTokenModel getAuthTokenModel(UUID authToken){
+    public AuthTokenModel getAuthTokenModel(String authToken){
         return authTokenDao.getAuthTokenModel(authToken);
     }
 }
