@@ -40,8 +40,31 @@ public class MYSQLAuthTokenDao implements AuthTokenDao{
     }
 
     @Override
-    public AuthTokenModel getAuthTokenModel(String authToken) {
-        return null;
+    public AuthTokenModel getAuthTokenModel(String authToken) throws Exception{
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT * FROM authtokens where authtoken = ?";
+            try(var preparedStatement = conn.prepareStatement(statement)){
+                preparedStatement.setString(1, authToken);
+                try(var result = preparedStatement.executeQuery()){
+                    if(result.next()){
+                        String authtoken = result.getString("authtoken");
+                        String username = result.getString("username");
+                        return new AuthTokenModel(username, authtoken);
+                    }else{
+                        return null;
+                    }
+                }
+            }
+        }catch (Exception e){
+            throw new Exception("Error: getAuthTokenModel, Problem: " + e.getMessage());
+        }
+
+    }
+
+    @Override
+    public void updateAuthToken(AuthTokenModel authModel) throws Exception {
+        var statement = "UPDATE authtokens SET authtoken = ? WHERE username = ?";
+        executeUpdate(statement, authModel.getAuthToken(), authModel.getUsername());
     }
 
     @Override
