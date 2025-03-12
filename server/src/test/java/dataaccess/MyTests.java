@@ -165,6 +165,20 @@ public class MyTests {
     }
 
     @Test
+    @DisplayName("Join with taken color")
+    public void badColorJoin() throws Exception{
+        CreateRequest request = new CreateRequest(existingAuth.getAuthToken());
+        request.setGameName("Color taken");
+        CreateResult createResult = gameService.createGame(request);
+        JoinRequest joinRequest = new JoinRequest("WHITE", createResult.getGameID());
+        joinRequest.setAuthTokenModel(existingAuth);
+        gameService.joinGame(joinRequest);
+        AuthTokenModel userTwoAuth = userService.registerUser(new UserModel("diffUsername", "diffpassword", "diffemail@email.com"));
+        joinRequest.setAuthTokenModel(userTwoAuth);
+        Assertions.assertThrows(UserAlreadyExistsException.class, () -> {gameService.joinGame(joinRequest);});
+    }
+
+    @Test
     @DisplayName("Good list")
     public void listGames() throws Exception{
         CreateRequest request = new CreateRequest(existingAuth.getAuthToken());
