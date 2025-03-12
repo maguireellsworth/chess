@@ -58,8 +58,16 @@ public class MYSQLGameDao implements GameDao{
         return null;
     }
 
-    public void joinGame(JoinRequest joinRequest){
-
+    public void joinGame(JoinRequest joinRequest) throws Exception{
+        String statement;
+        if(joinRequest.getPlayerColor().equals("WHITE")){
+            statement = "UPDATE games SET white_username = ?";
+        }else if(joinRequest.getPlayerColor().equals("BLACK")){
+            statement = "UPDATE games SET black_username = ?";
+        }else{
+            throw new InvalidUserDataException("Error: Player Color cannot be left blank");
+        }
+        executeUpdate(statement, joinRequest.getAuthTokenModel().getUsername());
     }
 
     public int executeUpdate(String statement, Object... params)throws Exception{
