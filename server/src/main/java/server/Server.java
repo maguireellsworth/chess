@@ -25,7 +25,7 @@ public class Server {
         try{
             this.userDao= new MYSQLUserDao();
             this.authTokenDao = new MYSQLAuthTokenDao();
-            this.gameDao = new GameDao();
+            this.gameDao = new MYSQLGameDao();
             this.userService = new UserService(userDao, authTokenDao);
             this.clearService = new ClearService(userDao, authTokenDao, gameDao);
             this.gameService = new GameService(gameDao, userService);
