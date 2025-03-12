@@ -12,12 +12,11 @@ import java.util.UUID;
 public class GameService {
     private GameDao gameDao;
     private UserService userService;
-    private int gameID;
+
 
     public GameService(GameDao gameDao, UserService userService){
         this.gameDao = gameDao;
         this.userService = userService;
-        this.gameID = 1;
     }
 
     public List<GameModel> listGames(String authToken)throws Exception{
@@ -28,16 +27,11 @@ public class GameService {
         }
     }
 
-    private void incrementID(){
-        gameID += 1;
-    }
-
     public CreateResult createGame(CreateRequest request)throws Exception{
         if(request.getGameName() == null){
             throw new InvalidUserDataException("Error: Empty fields are not allowed");
         } else if(userService.isValidUser(request.getAuthToken())){
-            incrementID();
-            return  gameDao.createGame(request, gameID);
+            return  gameDao.createGame(request);
         }else{
             throw new InvalidCredentialsException("Error: Unauthorized");
         }
@@ -51,22 +45,7 @@ public class GameService {
         }else if(color == null || (!color.equals("WHITE") && !color.equals("BLACK")) || request.getGameID() == 0){
             throw new InvalidUserDataException("Error: Bad Request");
         }
-
-        //position is already taken else set position
-        GameModel game = gameDao.getGame(request.getGameID());
-        if(request.getPlayerColor().equals("WHITE")){
-            if(game.getWhiteUsername() == null){
-                   game.setWhiteUsername(request.getAuthTokenModel().getUsername());
-            }else{
-                throw new UserAlreadyExistsException("Error: Color already selected by another player");
-            }
-        }else{
-            if (game.getBlackUsername() == null) {
-                game.setBlackUsername(request.getAuthTokenModel().getUsername());
-            } else {
-                throw new UserAlreadyExistsException("Error: Color already selected by another player");
-            }
-        }
+        gameDao.joinGame(request);
     }
 
 }

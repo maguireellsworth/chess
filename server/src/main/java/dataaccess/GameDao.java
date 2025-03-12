@@ -3,33 +3,21 @@ package dataaccess;
 import intermediaryclasses.CreateRequest;
 import intermediaryclasses.CreateResult;
 import chess.ChessGame;
+import intermediaryclasses.JoinRequest;
 import models.GameModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class GameDao {
-    private HashMap<Integer, GameModel> games;
+public interface GameDao {
+    List<GameModel> listGames() throws Exception;
 
-    public GameDao(){
-        this.games = new HashMap<Integer, GameModel>();
-    }
+    void clear() throws Exception;
 
-    public List<GameModel> listGames(){
-        return new ArrayList<>(games.values());
-    }
+    CreateResult createGame(CreateRequest request) throws Exception;
 
-    public void clear(){
-        games.clear();
-    }
+    GameModel getGame(int gameID) throws Exception;
 
-    public CreateResult createGame(CreateRequest request, int gameID){
-        games.put(gameID, new GameModel(new ChessGame(), request.getGameName(), gameID));
-        return new CreateResult(gameID);
-    }
-
-    public GameModel getGame(int gameID){
-        return games.get(gameID);
-    }
+    void joinGame(JoinRequest joinRequest);
 }
