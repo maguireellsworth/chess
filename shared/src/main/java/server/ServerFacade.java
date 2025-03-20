@@ -11,6 +11,10 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 
+import intermediaryclasses.CreateRequest;
+import intermediaryclasses.JoinRequest;
+import models.AuthTokenModel;
+import models.GameModel;
 import models.UserModel;
 import intermediaryclasses.RegisterResult;
 
@@ -23,18 +27,47 @@ public class ServerFacade {
 
     public RegisterResult registerUser(UserModel userModel) throws ResponseException{
         String path = "/user";
-        return this.makeRequest("POST", path, userModel, RegisterResult.class);
+        return this.makeRequest("POST", path, userModel, RegisterResult.class, null);
     }
 
-//    public
+    public RegisterResult loginUser(UserModel userModel) throws ResponseException{
+        String path = "/session";
+        return this.makeRequest("POST", path, userModel, RegisterResult.class, null);
+    }
+
+    public void logoutUser(AuthTokenModel authTokenModel) throws ResponseException{
+        String path = "/session";
+        this.makeRequest("DELETE", path, null, null, authTokenModel.getAuthToken());
+    }
+
+    public GameModel[] listGames(AuthTokenModel authTokenModel)throws ResponseException{
+        var path = "/game";
+        record listGamesResponse(GameModel[] gameModels) {
+        }
+        var response = this.makeRequest("GET", path, null, listGamesResponse.class, authTokenModel.getAuthToken());
+        return response.gameModels();
+    }
+
+    public int createGame(CreateRequest createRequest, AuthTokenModel authTokenModel) throws ResponseException{
+        String path = "/game";
+        return this.makeRequest("POST", path, createRequest, null, authTokenModel.getAuthToken());
+    }
+
+    public void joinGame(JoinRequest joinRequest, AuthTokenModel authTokenModel) throws ResponseException{
+        String path = "/game";
+        this.makeRequest("PUT", path, joinRequest, null, authTokenModel.getAuthToken());
+    }
 
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+            if(authToken != null){
+                http.setRequestProperty("authorization", authToken);
+            }
 
             writeBody(request, http);
             http.connect();
