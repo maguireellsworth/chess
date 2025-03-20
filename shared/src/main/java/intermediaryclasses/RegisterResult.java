@@ -1,7 +1,5 @@
 package intermediaryclasses;
 
-import java.util.UUID;
-
 public class RegisterResult extends Result {
     private String username;
     private String authToken;

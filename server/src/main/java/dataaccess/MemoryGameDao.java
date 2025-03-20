@@ -5,8 +5,6 @@ import intermediaryclasses.CreateResult;
 import chess.ChessGame;
 import intermediaryclasses.JoinRequest;
 import models.GameModel;
-import services.InvalidCredentialsException;
-import services.InvalidUserDataException;
 import services.UserAlreadyExistsException;
 
 import java.util.ArrayList;

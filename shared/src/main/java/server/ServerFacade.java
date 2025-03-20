@@ -11,7 +11,8 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 
-//import server.UserModel;
+import models.UserModel;
+import intermediaryclasses.RegisterResult;
 
 public class ServerFacade {
     private String serverUrl;
@@ -20,7 +21,14 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
-//    public UserModel
+    public RegisterResult registerUser(UserModel userModel) throws ResponseException{
+        String path = "/user";
+        return this.makeRequest("POST", path, userModel, RegisterResult.class);
+    }
+
+//    public
+
+
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();

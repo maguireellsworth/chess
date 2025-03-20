@@ -7,7 +7,6 @@ import dataaccess.GameDao;
 import models.GameModel;
 
 import java.util.List;
-import java.util.UUID;
 
 public class GameService {
     private GameDao gameDao;

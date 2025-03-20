@@ -1,12 +1,6 @@
 package dataaccess;
 
 import models.AuthTokenModel;
-import services.InvalidUserDataException;
-
-import javax.xml.crypto.Data;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.UUID;
 
 public class MYSQLAuthTokenDao implements AuthTokenDao{
     private DatabaseHelper dbHelper;

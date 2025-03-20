@@ -1,9 +1,9 @@
 package server;
 
 import dataaccess.*;
-import intermediaryclasses.*;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import intermediaryclasses.*;
 import models.GameModel;
 import services.*;
 import spark.*;
@@ -11,7 +11,6 @@ import models.UserModel;
 import models.AuthTokenModel;
 
 import java.util.List;
-import java.util.UUID;
 
 public class Server {
     private UserDao userDao;

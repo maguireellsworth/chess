@@ -1,15 +1,11 @@
 package services;
 
 import dataaccess.AuthTokenDao;
-import dataaccess.MYSQLAuthTokenDao;
-import dataaccess.MYSQLUserDao;
 import dataaccess.UserDao;
 import models.UserModel;
 import models.AuthTokenModel;
 import org.mindrot.jbcrypt.BCrypt;
 
-import java.security.spec.ECField;
-import java.util.Objects;
 import java.util.UUID;
 
 public class UserService {

@@ -2,8 +2,6 @@ package dataaccess;
 
 import models.AuthTokenModel;
 
-import java.util.UUID;
-
 public interface AuthTokenDao {
 
     void addAuthToken(AuthTokenModel authModel) throws Exception;

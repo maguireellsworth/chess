@@ -2,12 +2,9 @@ package dataaccess;
 
 import intermediaryclasses.CreateRequest;
 import intermediaryclasses.CreateResult;
-import chess.ChessGame;
 import intermediaryclasses.JoinRequest;
 import models.GameModel;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public interface GameDao {

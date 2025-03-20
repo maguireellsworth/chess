@@ -3,7 +3,6 @@ package dataaccess;
 import models.AuthTokenModel;
 
 import java.util.HashMap;
-import java.util.UUID;
 
 public class MemoryAuthTokenDao implements AuthTokenDao{
     private HashMap<String, AuthTokenModel> authTokens;
