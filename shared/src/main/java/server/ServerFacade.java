@@ -35,27 +35,27 @@ public class ServerFacade {
         return this.makeRequest("POST", path, userModel, RegisterResult.class, null);
     }
 
-    public void logoutUser(AuthTokenModel authTokenModel) throws ResponseException{
+    public void logoutUser(String authToken) throws ResponseException{
         String path = "/session";
-        this.makeRequest("DELETE", path, null, null, authTokenModel.getAuthToken());
+        this.makeRequest("DELETE", path, null, null, authToken);
     }
 
-    public GameModel[] listGames(AuthTokenModel authTokenModel)throws ResponseException{
+    public GameModel[] listGames(String authToken)throws ResponseException{
         var path = "/game";
         record listGamesResponse(GameModel[] gameModels) {
         }
-        var response = this.makeRequest("GET", path, null, listGamesResponse.class, authTokenModel.getAuthToken());
+        var response = this.makeRequest("GET", path, null, listGamesResponse.class, authToken);
         return response.gameModels();
     }
 
-    public int createGame(CreateRequest createRequest, AuthTokenModel authTokenModel) throws ResponseException{
+    public int createGame(CreateRequest createRequest, String authToken) throws ResponseException{
         String path = "/game";
-        return this.makeRequest("POST", path, createRequest, null, authTokenModel.getAuthToken());
+        return this.makeRequest("POST", path, createRequest, null, authToken);
     }
 
-    public void joinGame(JoinRequest joinRequest, AuthTokenModel authTokenModel) throws ResponseException{
+    public void joinGame(JoinRequest joinRequest, String authToken) throws ResponseException{
         String path = "/game";
-        this.makeRequest("PUT", path, joinRequest, null, authTokenModel.getAuthToken());
+        this.makeRequest("PUT", path, joinRequest, null, authToken);
     }
 
 

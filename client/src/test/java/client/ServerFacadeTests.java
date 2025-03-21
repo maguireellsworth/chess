@@ -20,9 +20,10 @@ public class ServerFacadeTests {
     private static Server server;
     private static String serverUrl = "http://localhost:8080";
     private static ServerFacade serverFacade;
-    private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    private ByteArrayOutputStream outputStream;
     private PrintStream originalOut;
     private InputStream originalIn;
+    private static UserModel user;
 
     @BeforeAll
     public static void init() {
@@ -30,6 +31,7 @@ public class ServerFacadeTests {
         var port = server.run(8080);
         System.out.println("Started test HTTP server on " + port);
         serverFacade = new ServerFacade(serverUrl);
+        user = new UserModel("TestUser", "TestPassword", "TestEmail");
     }
 
     @AfterAll
@@ -69,7 +71,6 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("Register ServerFacade Connects")
     public void registerFacade() throws Exception{
-        UserModel user = new UserModel("user", "pass", "email");
         RegisterResult result = serverFacade.registerUser(user);
         Assertions.assertEquals(result.getUsername(), user.getUsername());
         Assertions.assertNotNull(result.getAuthToken());
@@ -105,4 +106,103 @@ public class ServerFacadeTests {
         Assertions.assertTrue(consoleOutput.contains((expectedOutput)));
     }
 
+    @Test
+    @DisplayName("Repl Register Command Registers")
+    @Tag("Repl")
+    public void replRegister(){
+        String input = "register replUser replPass replEmail\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Successfully Registered";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Repl Register Wrong Input Count")
+    @Tag("Repl")
+    public void replRegisterNoPassword(){
+        String input = "register user email\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Incorrect number of parameters. 'register' command requires parameters: <username> <password> <email>";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Repl Login Wrong Input Count")
+    @Tag("Repl")
+    public void replLoginNoPassword(){
+        String input = "login username\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Incorrect number of parameters. 'login' command requires parameters: <username> <password>";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+//    @Test
+//    @DisplayName("ServerFacade Logout")
+//    public void logoutFacade() throws Exception{
+//        //register
+//        RegisterResult result = serverFacade.registerUser(user);
+//        //logout
+//        serverFacade.logoutUser(result.getAuthToken());
+//    }
+
+    @Test
+    @DisplayName("ServerFacade Login")
+    public void loginFacade() throws Exception{
+        //register
+        RegisterResult registerResult = serverFacade.registerUser(user);
+        //logout
+        serverFacade.logoutUser(registerResult.getAuthToken());
+        //login
+        RegisterResult loginResult = serverFacade.loginUser(user);
+
+        Assertions.assertEquals(user.getUsername(), loginResult.getUsername());
+        Assertions.assertNotNull(loginResult.getAuthToken());
+        Assertions.assertNotEquals(registerResult.getAuthToken(), loginResult.getAuthToken());
+    }
+
+
+    @Test
+    @DisplayName("Repl Login Already Logged In")
+    @Tag("Repl")
+    public void replLoginTwice(){
+        String input = "register user pass email\nlogin user pass\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Already logged in. Valid commands:";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Repl Login Success")
+    @Tag("Repl")
+    public void replLogin(){
+        String input = "register user pass email\nlogout\nlogin user pass\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Successfully Logged In!";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
 }
