@@ -90,7 +90,7 @@ public class ChessClient {
 
     public String help(){
         String prelogin = """
-                options:
+                Options:
                 - help
                 - quit
                 - login <username> <password>

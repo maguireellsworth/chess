@@ -84,9 +84,9 @@ public class ServerFacadeTests {
     }
 
     @Test
-    @DisplayName("Help Command Displays Options")
+    @DisplayName("Help Command Displays Prelogin Options")
     @Tag("Repl")
-    public void replHelp() {
+    public void replHelpPrelogin() {
         String input = "help\nquit\n";
         System.setIn(new ByteArrayInputStream(input.getBytes()));
 
@@ -95,12 +95,37 @@ public class ServerFacadeTests {
         String consoleOutput = outputStream.toString();
         String expectedOutput =
                 """
-                options:
+                Options:
                 - help
                 - quit
                 - login <username> <password>
                 - register <username> <password> <email>
                 """;
+
+//        Assertions.assertEquals(expectedOutput, consoleOutput);
+        Assertions.assertTrue(consoleOutput.contains((expectedOutput)));
+    }
+
+    @Test
+    @DisplayName("Help Command Displays Postlogin Options")
+    @Tag("Repl")
+    public void replHelpPostlogin() {
+        String input = "register user pass email\nhelp\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput =
+                """
+                 Options:
+                 - help
+                 - logout
+                 - create <gameName>
+                 - list
+                 - join <id> <WHITE or BLACK>
+                 - observe <id>
+                 """;;
 
 //        Assertions.assertEquals(expectedOutput, consoleOutput);
         Assertions.assertTrue(consoleOutput.contains((expectedOutput)));
