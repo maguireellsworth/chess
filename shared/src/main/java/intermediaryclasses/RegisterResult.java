@@ -8,6 +8,13 @@ public class RegisterResult extends Result {
         super(message);
         this.username = username;
         this.authToken = authToken;
+    }
 
+    public String getUsername(){
+        return username;
+    }
+
+    public String getAuthToken(){
+        return authToken;
     }
 }
