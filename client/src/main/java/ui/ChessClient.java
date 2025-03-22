@@ -1,6 +1,8 @@
 package ui;
 
 import exception.ResponseException;
+import intermediaryclasses.CreateRequest;
+import intermediaryclasses.CreateResult;
 import intermediaryclasses.RegisterResult;
 import models.UserModel;
 import server.ServerFacade;
@@ -27,6 +29,7 @@ public class ChessClient {
                 case "register" -> register(params);
                 case "login" -> login(params);
                 case "logout" -> logout();
+                case "create" -> create(params);
                 case "quit" -> "quitting";
                 default -> help();
             };
@@ -84,6 +87,22 @@ public class ChessClient {
                 return "Successfully Logged Out!";
             }catch(ResponseException e){
                 throw new ResponseException(400, "Error: Couldn't Logout, Problem: " + e.getMessage());
+            }
+        }
+    }
+
+    public String create(String... params) throws ResponseException{
+        if(!isLoggedIn()){
+            return "Must be logged in to run command 'create'\n" + help();
+        }else if(params.length != 1){
+            return "Incorrect number of parameters. 'create' command requires parameters: <gamename>";
+        }else{
+            CreateRequest request = new CreateRequest(authToken,params[0]);
+            try {
+                CreateResult createResult = server.createGame(request);
+                return "Successfully Created Game!";
+            }catch(ResponseException e){
+                throw new ResponseException(400, "Error: Couldn't create game, Problem: " + e.getMessage());
             }
         }
     }

@@ -1,6 +1,8 @@
 package client;
 
 import exception.ResponseException;
+import intermediaryclasses.CreateRequest;
+import intermediaryclasses.CreateResult;
 import intermediaryclasses.RegisterResult;
 import models.UserModel;
 import org.junit.jupiter.api.*;
@@ -227,6 +229,60 @@ public class ServerFacadeTests {
 
         String consoleOutput = outputStream.toString();
         String expectedOutput = "Successfully Logged In!";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Facade Create Not Logged In")
+    public void createFacade()throws Exception{
+        RegisterResult registerResult = serverFacade.registerUser(user);
+        CreateRequest createRequest = new CreateRequest(registerResult.getAuthToken(), "TestGame");
+        CreateResult createResult = serverFacade.createGame(createRequest);
+        Assertions.assertEquals(1, createResult.getGameID());
+    }
+
+    @Test
+    @DisplayName("Repl Create Game Not Logged In")
+    @Tag("Repl")
+    public void createNotLoggedIn(){
+        String input = "create gamename\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Must be logged in to run command 'create'";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Repl Create Game Wrong Parameters")
+    @Tag("Repl")
+    public void createWrongParameters(){
+        String input = "register user pass email\ncreate\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Incorrect number of parameters. 'create' command requires parameters: <gamename>";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Repl Create Game Successfully")
+    @Tag("Repl")
+    public void createSuccessfully(){
+        String input = "register user pass email\ncreate gamename\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Successfully Created Game!";
 
         Assertions.assertTrue(consoleOutput.contains(expectedOutput));
     }

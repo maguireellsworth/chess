@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URL;
 
 import intermediaryclasses.CreateRequest;
+import intermediaryclasses.CreateResult;
 import intermediaryclasses.JoinRequest;
 import models.AuthTokenModel;
 import models.GameModel;
@@ -48,9 +49,9 @@ public class ServerFacade {
         return response.gameModels();
     }
 
-    public int createGame(CreateRequest createRequest, String authToken) throws ResponseException{
+    public CreateResult createGame(CreateRequest createRequest) throws ResponseException{
         String path = "/game";
-        return this.makeRequest("POST", path, createRequest, null, authToken);
+        return this.makeRequest("POST", path, createRequest, CreateResult.class, createRequest.getAuthToken());
     }
 
     public void joinGame(JoinRequest joinRequest, String authToken) throws ResponseException{
