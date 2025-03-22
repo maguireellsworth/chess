@@ -11,13 +11,10 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
 
-import intermediaryclasses.CreateRequest;
-import intermediaryclasses.CreateResult;
-import intermediaryclasses.JoinRequest;
+import intermediaryclasses.*;
 import models.AuthTokenModel;
 import models.GameModel;
 import models.UserModel;
-import intermediaryclasses.RegisterResult;
 
 public class ServerFacade {
     private String serverUrl;
@@ -41,12 +38,9 @@ public class ServerFacade {
         this.makeRequest("DELETE", path, null, null, authToken);
     }
 
-    public GameModel[] listGames(String authToken)throws ResponseException{
+    public ListResult listGames(String authToken)throws ResponseException{
         var path = "/game";
-        record listGamesResponse(GameModel[] gameModels) {
-        }
-        var response = this.makeRequest("GET", path, null, listGamesResponse.class, authToken);
-        return response.gameModels();
+        return this.makeRequest("GET", path, null, ListResult.class, authToken);
     }
 
     public CreateResult createGame(CreateRequest createRequest) throws ResponseException{

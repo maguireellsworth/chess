@@ -4,6 +4,7 @@ import exception.ResponseException;
 import intermediaryclasses.CreateRequest;
 import intermediaryclasses.CreateResult;
 import intermediaryclasses.RegisterResult;
+import models.GameModel;
 import models.UserModel;
 import org.junit.jupiter.api.*;
 import server.Server;
@@ -14,6 +15,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -283,6 +285,66 @@ public class ServerFacadeTests {
 
         String consoleOutput = outputStream.toString();
         String expectedOutput = "Successfully Created Game!";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Facade List Games")
+    public void listGames() throws Exception{
+        RegisterResult registerResult = serverFacade.registerUser(user);
+        CreateResult createResult1 = serverFacade.createGame(new CreateRequest(registerResult.getAuthToken(), "testgame1"));
+        CreateResult createResult2 = serverFacade.createGame(new CreateRequest(registerResult.getAuthToken(), "testgame2"));
+        CreateResult createResult3 = serverFacade.createGame(new CreateRequest(registerResult.getAuthToken(), "testgame3"));
+        List<GameModel> games = serverFacade.listGames(registerResult.getAuthToken()).getGames();
+        Assertions.assertEquals(3, games.size());
+    }
+
+    @Test
+    @DisplayName("Repl List Games Not Logged In")
+    @Tag("Repl")
+    public void listNotLoggedIn(){
+        String input = "list\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Must be logged in to run command 'list'";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Repl List One Game")
+    @Tag("Repl")
+    public void listOneGame(){
+        String input = "register user pass email\ncreate testgame\nlist\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "1) gameName: testgame, WhiteUsername: null, BlackUsername: null, gameID: 1";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Repl List Multiple Games")
+    @Tag("Repl")
+    public void listMultipleGames(){
+        String input = "register user pass email\ncreate game1\ncreate game2\ncreate game3\nlist\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = """
+                1) gameName: game1, WhiteUsername: null, BlackUsername: null, gameID: 1
+                2) gameName: game2, WhiteUsername: null, BlackUsername: null, gameID: 2
+                3) gameName: game3, WhiteUsername: null, BlackUsername: null, gameID: 3
+                """;
 
         Assertions.assertTrue(consoleOutput.contains(expectedOutput));
     }

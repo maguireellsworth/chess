@@ -11,4 +11,8 @@ public class ListResult extends Result{
         super(message);
         this.games = games;
     }
+
+    public List<GameModel> getGames() {
+        return games;
+    }
 }

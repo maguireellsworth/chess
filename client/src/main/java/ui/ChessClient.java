@@ -3,11 +3,14 @@ package ui;
 import exception.ResponseException;
 import intermediaryclasses.CreateRequest;
 import intermediaryclasses.CreateResult;
+import intermediaryclasses.ListResult;
 import intermediaryclasses.RegisterResult;
+import models.GameModel;
 import models.UserModel;
 import server.ServerFacade;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class ChessClient {
     private String username;
@@ -30,6 +33,7 @@ public class ChessClient {
                 case "login" -> login(params);
                 case "logout" -> logout();
                 case "create" -> create(params);
+                case "list" -> list();
                 case "quit" -> "quitting";
                 default -> help();
             };
@@ -103,6 +107,31 @@ public class ChessClient {
                 return "Successfully Created Game!";
             }catch(ResponseException e){
                 throw new ResponseException(400, "Error: Couldn't create game, Problem: " + e.getMessage());
+            }
+        }
+    }
+
+    public String list() throws ResponseException{
+        if(!isLoggedIn()){
+            return "Must be logged in to run command 'list'\n" + help();
+        }else{
+            try {
+                List<GameModel> games = server.listGames(authToken).getGames();
+                String format = "%d) gameName: %s, WhiteUsername: %s, BlackUsername: %s, gameID: %d\n";
+                StringBuilder returnString = new StringBuilder();
+                for (int i = 0; i < games.size(); i++) {
+                    returnString.append(String.format(
+                            format,
+                            i + 1,
+                            games.get(i).getGameName(),
+                            games.get(i).getWhiteUsername(),
+                            games.get(i).getBlackUsername(),
+                            games.get(i).getGameID())
+                    );
+                }
+                return returnString.toString();
+            }catch(ResponseException e){
+                throw new ResponseException(400, "Error: Couldn't list games, Problem: " + e.getMessage());
             }
         }
     }
