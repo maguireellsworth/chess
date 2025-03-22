@@ -110,8 +110,7 @@ public class MyTests {
     @Test
     @DisplayName("Create Game")
     public void successCreateGame() throws Exception{
-        CreateRequest request = new CreateRequest(existingAuth.getAuthToken());
-        request.setGameName("TestGame");
+        CreateRequest request = new CreateRequest(existingAuth.getAuthToken(), "TestGame");
         CreateResult createResult = gameService.createGame(request);
         try(var conn = DatabaseManager.getConnection()){
             var statement = "SELECT * FROM games WHERE game_id = ?";
@@ -127,16 +126,14 @@ public class MyTests {
     @Test
     @DisplayName("Create Game with bad Auth")
     public void createBadAuth(){
-        CreateRequest request = new CreateRequest(UUID.randomUUID().toString());
-        request.setGameName("badAuthGame");
+        CreateRequest request = new CreateRequest(UUID.randomUUID().toString(), "badAuthGame");
         Assertions.assertThrows(InvalidCredentialsException.class, () ->{gameService.createGame(request);});
     }
 
     @Test
     @DisplayName("Join Game")
     public void joinGame() throws Exception{
-        CreateRequest request = new CreateRequest(existingAuth.getAuthToken());
-        request.setGameName("SuccessJoin");
+        CreateRequest request = new CreateRequest(existingAuth.getAuthToken(), "SuccessJoin");
         CreateResult createResult = gameService.createGame(request);
         JoinRequest joinRequest = new JoinRequest("WHITE", createResult.getGameID());
         joinRequest.setAuthTokenModel(existingAuth);
@@ -155,8 +152,7 @@ public class MyTests {
     @Test
     @DisplayName("Join Game with bad Auth")
     public void badAuthJoin() throws Exception{
-        CreateRequest request = new CreateRequest(existingAuth.getAuthToken());
-        request.setGameName("badAuthJoin");
+        CreateRequest request = new CreateRequest(existingAuth.getAuthToken(), "badAuthJoin");
         CreateResult createResult = gameService.createGame(request);
         JoinRequest joinRequest = new JoinRequest("WHITE", createResult.getGameID());
         joinRequest.setAuthTokenModel(new AuthTokenModel(UUID.randomUUID().toString(), "badAuthusername"));
@@ -166,8 +162,7 @@ public class MyTests {
     @Test
     @DisplayName("Join with taken color")
     public void badColorJoin() throws Exception{
-        CreateRequest request = new CreateRequest(existingAuth.getAuthToken());
-        request.setGameName("Color taken");
+        CreateRequest request = new CreateRequest(existingAuth.getAuthToken(), "Color taken");
         CreateResult createResult = gameService.createGame(request);
         JoinRequest joinRequest = new JoinRequest("WHITE", createResult.getGameID());
         joinRequest.setAuthTokenModel(existingAuth);
@@ -180,13 +175,12 @@ public class MyTests {
     @Test
     @DisplayName("Good list")
     public void listGames() throws Exception{
-        CreateRequest request = new CreateRequest(existingAuth.getAuthToken());
-        request.setGameName("number 1");
-        gameService.createGame(request);
-        request.setGameName("number 2");
-        gameService.createGame(request);
-        request.setGameName("number 3");
-        gameService.createGame(request);
+        CreateRequest request1 = new CreateRequest(existingAuth.getAuthToken(), "number 1");
+        CreateRequest request2 = new CreateRequest(existingAuth.getAuthToken(), "number 2");
+        CreateRequest request3 = new CreateRequest(existingAuth.getAuthToken(), "number 3");
+        gameService.createGame(request1);
+        gameService.createGame(request2);
+        gameService.createGame(request3);
         List allgames = gameService.listGames(existingAuth.getAuthToken());
         Assertions.assertEquals(3, allgames.size());
     }
@@ -194,8 +188,7 @@ public class MyTests {
     @Test
     @DisplayName("Clear database")
     public void clear() throws Exception{
-        CreateRequest request = new CreateRequest(existingAuth.getAuthToken());
-        request.setGameName("number 1");
+        CreateRequest request = new CreateRequest(existingAuth.getAuthToken(),"number 1");
         gameService.createGame(request);
 
         clearService.clearDB();

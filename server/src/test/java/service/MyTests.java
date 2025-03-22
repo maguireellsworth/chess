@@ -71,8 +71,7 @@ public class MyTests {
     @DisplayName("Join Game Color Already Taken")
     public void joinGameTaken()throws Exception{
         AuthTokenModel authTokenP1 = userService.registerUser(user);
-        CreateRequest createRequest = new CreateRequest(authTokenP1.getAuthToken());
-        createRequest.setGameName("Coding is fun");
+        CreateRequest createRequest = new CreateRequest(authTokenP1.getAuthToken(), "Coding is fun");
         CreateResult result = gameService.createGame(createRequest);
         JoinRequest joinRequestP1 = new JoinRequest("WHITE", result.getGameID());
         joinRequestP1.setAuthTokenModel(authTokenP1);

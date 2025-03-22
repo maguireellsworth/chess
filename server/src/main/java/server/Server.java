@@ -107,7 +107,7 @@ public class Server {
     public Object createGame(Request req, Response res) throws Exception{
         Gson gson = new Gson();
         try{
-            CreateRequest request = new CreateRequest(getValidUUIDString(req));
+            CreateRequest request = new CreateRequest(getValidUUIDString(req), null);
             String gamename= gson.fromJson(req.body(), JsonObject.class).get("gameName").getAsString();
             request.setGameName(gamename);
             CreateResult gameID = gameService.createGame(request);
