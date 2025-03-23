@@ -3,7 +3,9 @@ package client;
 import exception.ResponseException;
 import intermediaryclasses.CreateRequest;
 import intermediaryclasses.CreateResult;
+import intermediaryclasses.JoinRequest;
 import intermediaryclasses.RegisterResult;
+import models.AuthTokenModel;
 import models.GameModel;
 import models.UserModel;
 import org.junit.jupiter.api.*;
@@ -15,8 +17,11 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.security.spec.ECField;
 import java.util.List;
 import java.util.Objects;
+
+import static chess.ChessGame.TeamColor.WHITE;
 
 
 public class ServerFacadeTests {
@@ -81,7 +86,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    @DisplayName("Register Throws Error")
+    @DisplayName("Register Facade No Password Throws Error")
     public void registerError() {
         UserModel user = new UserModel("user", null, "email");
         Assertions.assertThrows(ResponseException.class, () -> { serverFacade.registerUser(user);});
@@ -236,7 +241,7 @@ public class ServerFacadeTests {
     }
 
     @Test
-    @DisplayName("Facade Create Not Logged In")
+    @DisplayName("Create Facade Creates Game")
     public void createFacade()throws Exception{
         RegisterResult registerResult = serverFacade.registerUser(user);
         CreateRequest createRequest = new CreateRequest(registerResult.getAuthToken(), "TestGame");
@@ -318,14 +323,14 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("Repl List One Game")
     @Tag("Repl")
-    public void listOneGame(){
+    public void replListOneGame(){
         String input = "register user pass email\ncreate testgame\nlist\nquit\n";
         System.setIn(new ByteArrayInputStream(input.getBytes()));
 
         new Repl(serverUrl).run();
 
         String consoleOutput = outputStream.toString();
-        String expectedOutput = "1) gameName: testgame, WhiteUsername: null, BlackUsername: null, gameID: 1";
+        String expectedOutput = "1) GameName: testgame, WhiteUsername: null, BlackUsername: null";
 
         Assertions.assertTrue(consoleOutput.contains(expectedOutput));
     }
@@ -333,7 +338,7 @@ public class ServerFacadeTests {
     @Test
     @DisplayName("Repl List Multiple Games")
     @Tag("Repl")
-    public void listMultipleGames(){
+    public void replListMultipleGames(){
         String input = "register user pass email\ncreate game1\ncreate game2\ncreate game3\nlist\nquit\n";
         System.setIn(new ByteArrayInputStream(input.getBytes()));
 
@@ -341,10 +346,66 @@ public class ServerFacadeTests {
 
         String consoleOutput = outputStream.toString();
         String expectedOutput = """
-                1) gameName: game1, WhiteUsername: null, BlackUsername: null, gameID: 1
-                2) gameName: game2, WhiteUsername: null, BlackUsername: null, gameID: 2
-                3) gameName: game3, WhiteUsername: null, BlackUsername: null, gameID: 3
+                1) GameName: game1, WhiteUsername: null, BlackUsername: null
+                2) GameName: game2, WhiteUsername: null, BlackUsername: null
+                3) GameName: game3, WhiteUsername: null, BlackUsername: null
                 """;
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Facade Join Game")
+    public void joinGameFacade() throws Exception {
+        RegisterResult registerResult = serverFacade.registerUser(user);
+        CreateResult createResult = serverFacade.createGame(new CreateRequest(registerResult.getAuthToken(), "TestGame"));
+        JoinRequest joinRequest = new JoinRequest("WHITE", 1);
+        AuthTokenModel authModel = new AuthTokenModel(user.getUsername(), registerResult.getAuthToken());
+        joinRequest.setAuthTokenModel(authModel);
+        Assertions.assertDoesNotThrow(() -> serverFacade.joinGame(joinRequest));
+    }
+
+    @Test
+    @DisplayName("Repl Join Not Logged In")
+    @Tag("Repl")
+    public void replJoinNotLoggedIn(){
+        String input = "join 1 WHITE\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Must be logged in to use command 'join'";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Repl Join Wrong Parameters")
+    @Tag("Repl")
+    public void replJoinWrongParameters(){
+        String input = "register user pass email\njoin 1\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "Incorrect number of parameters. 'join' command requires parameters: <id> <WHITE or BLACK";
+
+        Assertions.assertTrue(consoleOutput.contains(expectedOutput));
+    }
+
+    @Test
+    @DisplayName("Repl Join Successfully")
+    @Tag("Repl")
+    public void replJoinGame(){
+        String input = "register user pass email\ncreate TestGame\nlist\njoin 1 WHITE\nlist\nquit\n";
+        System.setIn(new ByteArrayInputStream(input.getBytes()));
+
+        new Repl(serverUrl).run();
+
+        String consoleOutput = outputStream.toString();
+        String expectedOutput = "1) GameName: testgame, WhiteUsername: user, BlackUsername: null";
 
         Assertions.assertTrue(consoleOutput.contains(expectedOutput));
     }

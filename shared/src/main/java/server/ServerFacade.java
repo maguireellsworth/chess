@@ -48,8 +48,9 @@ public class ServerFacade {
         return this.makeRequest("POST", path, createRequest, CreateResult.class, createRequest.getAuthToken());
     }
 
-    public void joinGame(JoinRequest joinRequest, String authToken) throws ResponseException{
+    public void joinGame(JoinRequest joinRequest) throws ResponseException{
         String path = "/game";
+        String authToken = joinRequest.getAuthTokenModel().getAuthToken();
         this.makeRequest("PUT", path, joinRequest, null, authToken);
     }
 

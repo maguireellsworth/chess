@@ -1,15 +1,14 @@
 package ui;
 
 import exception.ResponseException;
-import intermediaryclasses.CreateRequest;
-import intermediaryclasses.CreateResult;
-import intermediaryclasses.ListResult;
-import intermediaryclasses.RegisterResult;
+import intermediaryclasses.*;
+import models.AuthTokenModel;
 import models.GameModel;
 import models.UserModel;
 import server.ServerFacade;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 public class ChessClient {
@@ -17,10 +16,12 @@ public class ChessClient {
     private String authToken = null;
     private ServerFacade server;
     private String serverUrl;
+    private HashMap<Integer, GameModel> gameList;
 
     public ChessClient(String serverUrl){
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
+        gameList = new HashMap<>();
     }
 
     public String eval(String input) {
@@ -34,6 +35,7 @@ public class ChessClient {
                 case "logout" -> logout();
                 case "create" -> create(params);
                 case "list" -> list();
+                case "join" -> join(params);
                 case "quit" -> "quitting";
                 default -> help();
             };
@@ -116,8 +118,9 @@ public class ChessClient {
             return "Must be logged in to run command 'list'\n" + help();
         }else{
             try {
+                gameList = new HashMap<>();
                 List<GameModel> games = server.listGames(authToken).getGames();
-                String format = "%d) gameName: %s, WhiteUsername: %s, BlackUsername: %s, gameID: %d\n";
+                String format = "%d) GameName: %s, WhiteUsername: %s, BlackUsername: %s\n";
                 StringBuilder returnString = new StringBuilder();
                 for (int i = 0; i < games.size(); i++) {
                     returnString.append(String.format(
@@ -125,13 +128,32 @@ public class ChessClient {
                             i + 1,
                             games.get(i).getGameName(),
                             games.get(i).getWhiteUsername(),
-                            games.get(i).getBlackUsername(),
-                            games.get(i).getGameID())
+                            games.get(i).getBlackUsername()
+                            )
                     );
+                    gameList.put(i + 1, games.get(i));
                 }
                 return returnString.toString();
             }catch(ResponseException e){
                 throw new ResponseException(400, "Error: Couldn't list games, Problem: " + e.getMessage());
+            }
+        }
+    }
+
+    public String join(String... params) throws ResponseException{
+        if(!isLoggedIn()){
+            return "Must be logged in to use command 'join'\n" + help();
+        }else if(params.length != 2){
+            return "Incorrect number of parameters. 'join' command requires parameters: <id> <WHITE or BLACK";
+        }else{
+            try {
+                GameModel game = gameList.get(Integer.parseInt(params[0]));
+                JoinRequest joinRequest = new JoinRequest(params[1].toUpperCase(), game.getGameID());
+                joinRequest.setAuthTokenModel(new AuthTokenModel(username, authToken));
+                server.joinGame(joinRequest);
+                return "Successfully Joined Game!";
+            }catch (Exception e){
+                throw new ResponseException(400, "Error: Couldn't join game, Problem: " + e.getMessage());
             }
         }
     }
