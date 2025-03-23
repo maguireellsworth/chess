@@ -1,12 +1,21 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import exception.ResponseException;
 import intermediaryclasses.*;
 import models.AuthTokenModel;
 import models.GameModel;
 import models.UserModel;
 import server.ServerFacade;
+import static ui.EscapeSequences.*;
 
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +26,7 @@ public class ChessClient {
     private ServerFacade server;
     private String serverUrl;
     private HashMap<Integer, GameModel> gameList;
+    private GameModel game;
 
     public ChessClient(String serverUrl){
         server = new ServerFacade(serverUrl);
@@ -36,6 +46,7 @@ public class ChessClient {
                 case "create" -> create(params);
                 case "list" -> list();
                 case "join" -> join(params);
+                case "print" -> printBoard();
                 case "quit" -> "quitting";
                 default -> help();
             };
@@ -147,7 +158,7 @@ public class ChessClient {
             return "Incorrect number of parameters. 'join' command requires parameters: <id> <WHITE or BLACK";
         }else{
             try {
-                GameModel game = gameList.get(Integer.parseInt(params[0]));
+                game = gameList.get(Integer.parseInt(params[0]));
                 JoinRequest joinRequest = new JoinRequest(params[1].toUpperCase(), game.getGameID());
                 joinRequest.setAuthTokenModel(new AuthTokenModel(username, authToken));
                 server.joinGame(joinRequest);
@@ -156,6 +167,86 @@ public class ChessClient {
                 throw new ResponseException(400, "Error: Couldn't join game, Problem: " + e.getMessage());
             }
         }
+    }
+
+    public String printBoard(){
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        ChessBoard board = new ChessBoard();
+        board.resetBoard();
+
+        String[] letters = {" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
+        String[] numbers = {" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
+
+        //print top border
+        printLabel(out, letters);
+
+        //print rows
+        printRows(out, numbers, board);
+
+        //print bottom border
+        printLabel(out, letters);
+        return "";
+    }
+
+    public void printLabel(PrintStream out, String[] letters){
+        out.print(SET_BG_COLOR_DARK_GREEN);
+        out.print(SET_TEXT_COLOR_YELLOW);
+        out.print("   ");
+        for(int i = 0; i < 8; i++){
+            out.print(letters[i]);
+        }
+        out.print("   ");
+        reset(out);
+        out.println();
+    }
+
+    public void printRows(PrintStream out, String[] numbers, ChessBoard board){
+        for(int i = 7; i >= 0; i--){
+            out.print(SET_BG_COLOR_DARK_GREEN);
+            out.print(SET_TEXT_COLOR_YELLOW);
+            out.print(numbers[i]);
+            for(int j = 0; j <= 7; j++){
+                String spaceColor = null;
+                if(i % 2 == 0){
+                    spaceColor = (j % 2 == 0) ? SET_BG_COLOR_BLUE : SET_BG_COLOR_RED;
+                }else{
+                    spaceColor = (j % 2 == 0) ? SET_BG_COLOR_RED : SET_BG_COLOR_BLUE;
+                }
+                out.print(spaceColor);
+                ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
+                printPiece(piece, out);
+            }
+            out.print(SET_BG_COLOR_DARK_GREEN);
+            out.print(SET_TEXT_COLOR_YELLOW);
+            out.print(numbers[i]);
+            reset(out);
+            out.println();
+        }
+    }
+
+    public void printPiece(ChessPiece piece, PrintStream out){
+        if(piece == null){
+            out.print("   ");
+            return;
+        }
+        ChessGame.TeamColor color = piece.getTeamColor();
+        String printColor = (color == ChessGame.TeamColor.WHITE)? SET_TEXT_COLOR_WHITE : SET_TEXT_COLOR_BLACK;
+        out.print(printColor);
+        out.print(SET_TEXT_BOLD);
+        switch(piece.getPieceType()){
+            case PAWN -> out.print(" P ");
+            case ROOK -> out.print(" R ");
+            case KNIGHT -> out.print(" N ");
+            case BISHOP -> out.print(" B ");
+            case QUEEN -> out.print(" Q ");
+            case KING -> out.print(" K ");
+        }
+        out.print(RESET_TEXT_BOLD_FAINT);
+    }
+
+    public void reset(PrintStream out){
+        out.print(RESET_BG_COLOR);
+        out.print(RESET_TEXT_COLOR);
     }
 
     public String help(){
