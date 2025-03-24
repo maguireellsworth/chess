@@ -47,6 +47,7 @@ public class ChessClient {
                 case "list" -> list();
                 case "join" -> join(params);
                 case "print" -> printBoard();
+//                case "observe" -> observe();
                 case "quit" -> "quitting";
                 default -> help();
             };
