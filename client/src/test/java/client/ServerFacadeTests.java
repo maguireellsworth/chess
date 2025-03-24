@@ -387,7 +387,7 @@ public class ServerFacadeTests {
         new Repl(serverUrl).run();
 
         String consoleOutput = outputStream.toString();
-        String expectedOutput = "Incorrect number of parameters. 'join' command requires parameters: <id> <WHITE or BLACK";
+        String expectedOutput = "Incorrect number of parameters. 'join' command requires parameters: <id> <WHITE or BLACK>";
 
         Assertions.assertTrue(consoleOutput.contains(expectedOutput));
     }
