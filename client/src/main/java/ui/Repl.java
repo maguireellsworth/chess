@@ -13,8 +13,10 @@ public class Repl {
     }
 
     public void run() {
-        System.out.println(WHITE_QUEEN + "Welcome to Chess! Sign in to start." + WHITE_KING);
-        System.out.print(client.help());
+        System.out.println(SET_TEXT_COLOR_RED + WHITE_QUEEN +
+                SET_TEXT_COLOR_YELLOW + "Welcome to Chess! Sign in to start." + RESET_TEXT_COLOR +
+                SET_TEXT_COLOR_RED + WHITE_KING);
+        System.out.print(SET_TEXT_COLOR_BLUE + client.help());
 
         Scanner scanner = new Scanner(System.in);
         var result = "";
@@ -34,6 +36,6 @@ public class Repl {
     }
 
     private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + ">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print("\n" + SET_TEXT_COLOR_YELLOW + client.getUsername() +  RESET_TEXT_COLOR + " >>> " + SET_TEXT_COLOR_GREEN);
     }
 }

@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ChessClient {
-    private String username;
+    private String username = "Logged out";
     private String authToken = null;
     private ServerFacade server;
     private String serverUrl;
@@ -32,6 +32,10 @@ public class ChessClient {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         gameList = new HashMap<>();
+    }
+
+    public String getUsername(){
+        return username;
     }
 
     public String eval(String input) {
@@ -66,7 +70,7 @@ public class ChessClient {
                 authToken = result.getAuthToken();
                 return "Successfully Registered!";
             }catch(ResponseException e){
-                throw new ResponseException(400, "Error: Couldn't Register, Problem: " + e.getMessage());
+                throw new ResponseException(400, "Error: Couldn't Register");
             }
         }
     }
@@ -84,7 +88,7 @@ public class ChessClient {
                 authToken = result.getAuthToken();
                 return "Successfully Logged In!";
             }catch(ResponseException e){
-                throw new ResponseException(400, "Error: Couldn't Login, Problem: " + e.getMessage());
+                throw new ResponseException(400, "Error: Couldn't Login, Incorrect Username of Password");
             }
         }
     }
@@ -99,11 +103,11 @@ public class ChessClient {
         }else{
             try{
                 server.logoutUser(authToken);
-                username = null;
+                username = "Logged out";
                 authToken = null;
                 return "Successfully Logged Out!";
             }catch(ResponseException e){
-                throw new ResponseException(400, "Error: Couldn't Logout, Problem: " + e.getMessage());
+                throw new ResponseException(400, "Error: Couldn't Logout");
             }
         }
     }
@@ -119,7 +123,7 @@ public class ChessClient {
                 CreateResult createResult = server.createGame(request);
                 return "Successfully Created Game!";
             }catch(ResponseException e){
-                throw new ResponseException(400, "Error: Couldn't create game, Problem: " + e.getMessage());
+                throw new ResponseException(400, "Error: Couldn't create game");
             }
         }
     }
@@ -146,7 +150,7 @@ public class ChessClient {
                 }
                 return returnString.toString();
             }catch(ResponseException e){
-                throw new ResponseException(400, "Error: Couldn't list games, Problem: " + e.getMessage());
+                throw new ResponseException(400, "Error: Couldn't list games");
             }
         }
     }
@@ -166,7 +170,7 @@ public class ChessClient {
                 printBoard();
                 return "Successfully Joined Game!";
             }catch (Exception e){
-                throw new ResponseException(400, "Error: Couldn't join game, Problem: " + e.getMessage());
+                throw new ResponseException(400, "Error: Couldn't join game");
             }
         }
     }
@@ -183,7 +187,7 @@ public class ChessClient {
                 printBoard();
                 return "";
             }catch (Exception e){
-                throw new ResponseException(400, "Error: Couldn't join game, Problem: " + e.getMessage());
+                throw new ResponseException(400, "Error: Couldn't join game");
             }
         }
     }
