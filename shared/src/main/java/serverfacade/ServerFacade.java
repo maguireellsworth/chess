@@ -1,4 +1,4 @@
-package server;
+package serverfacade;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
@@ -12,8 +12,6 @@ import java.net.URI;
 import java.net.URL;
 
 import intermediaryclasses.*;
-import models.AuthTokenModel;
-import models.GameModel;
 import models.UserModel;
 
 public class ServerFacade {

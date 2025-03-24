@@ -10,24 +10,20 @@ import models.GameModel;
 import models.UserModel;
 import org.junit.jupiter.api.*;
 import server.Server;
-import server.ServerFacade;
+import serverfacade.ServerFacade;
 import ui.Repl;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.security.spec.ECField;
 import java.util.List;
-import java.util.Objects;
-
-import static chess.ChessGame.TeamColor.WHITE;
 
 
 public class ServerFacadeTests {
 
     private static Server server;
-    private static String serverUrl = "http://localhost:8080";
+    private static String serverUrl = "http://localhost:";
     private static ServerFacade serverFacade;
     private ByteArrayOutputStream outputStream;
     private PrintStream originalOut;
@@ -37,8 +33,9 @@ public class ServerFacadeTests {
     @BeforeAll
     public static void init() {
         server = new Server();
-        var port = server.run(8080);
+        var port = server.run(0);
         System.out.println("Started test HTTP server on " + port);
+        serverUrl = serverUrl + port;
         serverFacade = new ServerFacade(serverUrl);
         user = new UserModel("TestUser", "TestPassword", "TestEmail");
     }

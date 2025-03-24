@@ -9,7 +9,7 @@ import intermediaryclasses.*;
 import models.AuthTokenModel;
 import models.GameModel;
 import models.UserModel;
-import server.ServerFacade;
+import serverfacade.ServerFacade;
 import static ui.EscapeSequences.*;
 
 
@@ -47,6 +47,7 @@ public class ChessClient {
                 case "list" -> list();
                 case "join" -> join(params);
                 case "print" -> printBoard();
+//                case "observe" -> observe();
                 case "quit" -> "quitting";
                 default -> help();
             };
