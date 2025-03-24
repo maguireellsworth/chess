@@ -13,7 +13,6 @@ import server.ServerFacade;
 import static ui.EscapeSequences.*;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -27,6 +26,7 @@ public class ChessClient {
     private String serverUrl;
     private HashMap<Integer, GameModel> gameList;
     private GameModel game;
+    private String playerColor;
 
     public ChessClient(String serverUrl){
         server = new ServerFacade(serverUrl);
@@ -159,6 +159,7 @@ public class ChessClient {
         }else{
             try {
                 game = gameList.get(Integer.parseInt(params[0]));
+                playerColor = params[1].toUpperCase();
                 JoinRequest joinRequest = new JoinRequest(params[1].toUpperCase(), game.getGameID());
                 joinRequest.setAuthTokenModel(new AuthTokenModel(username, authToken));
                 server.joinGame(joinRequest);
@@ -171,22 +172,62 @@ public class ChessClient {
 
     public String printBoard(){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+
+        //start temp variables for testing
         ChessBoard board = new ChessBoard();
         board.resetBoard();
+        playerColor = "BLACK";
+        //end temp variables for testing
 
         String[] letters = {" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
         String[] numbers = {" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
-
-        //print top border
-        printLabel(out, letters);
-
-        //print rows
-        printRows(out, numbers, board);
-
-        //print bottom border
-        printLabel(out, letters);
+        if(playerColor.equals("WHITE")){
+            printWhiteBoard(out, letters, numbers, board);
+        }else{
+            //swap letters and numbers
+            printBlackBoard(out, letters, numbers, board);
+        }
         return "";
     }
+
+    public void printWhiteBoard(PrintStream out, String[] letters, String[] numbers, ChessBoard board){
+        printLabel(out, letters);
+        for(int i = 7; i >= 0; i--){
+            printRowNumber(out, i, numbers);
+            for(int j = 0; j <= 7; j++){
+                printBoardRows(out, i, j, board);
+            }
+            printRowNumber(out, i, numbers);
+            reset(out);
+            out.println();
+        }
+        printLabel(out, letters);
+    }
+
+    public void printBlackBoard(PrintStream out, String[] letters, String[] numbers, ChessBoard board){
+        letters = reverseArray(letters);
+        printLabel(out, letters);
+        for(int i = 0; i <= 7; i++){
+            printRowNumber(out, i, numbers);
+            for(int j = 7; j >= 0; j--){
+                printBoardRows(out, i, j, board);
+            }
+            printRowNumber(out, i, numbers);
+            reset(out);
+            out.println();
+        }
+        printLabel(out, letters);
+    }
+
+    public String[] reverseArray(String[] letters){
+        for (int i = 0; i < letters.length / 2; i++) {
+            String t = letters[i];
+            letters[i] = letters[letters.length - 1 - i];
+            letters[letters.length - 1 - i] = t;
+        }
+        return letters;
+    }
+
 
     public void printLabel(PrintStream out, String[] letters){
         out.print(SET_BG_COLOR_DARK_GREEN);
@@ -200,28 +241,22 @@ public class ChessClient {
         out.println();
     }
 
-    public void printRows(PrintStream out, String[] numbers, ChessBoard board){
-        for(int i = 7; i >= 0; i--){
-            out.print(SET_BG_COLOR_DARK_GREEN);
-            out.print(SET_TEXT_COLOR_YELLOW);
-            out.print(numbers[i]);
-            for(int j = 0; j <= 7; j++){
-                String spaceColor = null;
-                if(i % 2 == 0){
-                    spaceColor = (j % 2 == 0) ? SET_BG_COLOR_BLUE : SET_BG_COLOR_RED;
-                }else{
-                    spaceColor = (j % 2 == 0) ? SET_BG_COLOR_RED : SET_BG_COLOR_BLUE;
-                }
-                out.print(spaceColor);
-                ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
-                printPiece(piece, out);
-            }
-            out.print(SET_BG_COLOR_DARK_GREEN);
-            out.print(SET_TEXT_COLOR_YELLOW);
-            out.print(numbers[i]);
-            reset(out);
-            out.println();
+    public void printRowNumber(PrintStream out, int index, String[] numbers){
+        out.print(SET_BG_COLOR_DARK_GREEN);
+        out.print(SET_TEXT_COLOR_YELLOW);
+        out.print(numbers[index]);
+    }
+
+    public void printBoardRows(PrintStream out, int i, int j, ChessBoard board){
+        String spaceColor = null;
+        if(i % 2 == 0){
+            spaceColor = (j % 2 == 0) ? SET_BG_COLOR_BLUE : SET_BG_COLOR_RED;
+        }else{
+            spaceColor = (j % 2 == 0) ? SET_BG_COLOR_RED : SET_BG_COLOR_BLUE;
         }
+        out.print(spaceColor);
+        ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
+        printPiece(piece, out);
     }
 
     public void printPiece(ChessPiece piece, PrintStream out){
