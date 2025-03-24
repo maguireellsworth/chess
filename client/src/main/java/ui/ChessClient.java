@@ -163,6 +163,7 @@ public class ChessClient {
                 JoinRequest joinRequest = new JoinRequest(params[1].toUpperCase(), game.getGameID());
                 joinRequest.setAuthTokenModel(new AuthTokenModel(username, authToken));
                 server.joinGame(joinRequest);
+                printBoard();
                 return "Successfully Joined Game!";
             }catch (Exception e){
                 throw new ResponseException(400, "Error: Couldn't join game, Problem: " + e.getMessage());
@@ -176,7 +177,6 @@ public class ChessClient {
         //start temp variables for testing
         ChessBoard board = new ChessBoard();
         board.resetBoard();
-        playerColor = "BLACK";
         //end temp variables for testing
 
         String[] letters = {" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
