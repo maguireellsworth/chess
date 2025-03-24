@@ -46,8 +46,7 @@ public class ChessClient {
                 case "create" -> create(params);
                 case "list" -> list();
                 case "join" -> join(params);
-                case "print" -> printBoard();
-//                case "observe" -> observe();
+                case "observe" -> observe(params);
                 case "quit" -> "quitting";
                 default -> help();
             };
@@ -156,7 +155,7 @@ public class ChessClient {
         if(!isLoggedIn()){
             return "Must be logged in to use command 'join'\n" + help();
         }else if(params.length != 2){
-            return "Incorrect number of parameters. 'join' command requires parameters: <id> <WHITE or BLACK";
+            return "Incorrect number of parameters. 'join' command requires parameters: <id> <WHITE or BLACK>";
         }else{
             try {
                 game = gameList.get(Integer.parseInt(params[0]));
@@ -170,6 +169,43 @@ public class ChessClient {
                 throw new ResponseException(400, "Error: Couldn't join game, Problem: " + e.getMessage());
             }
         }
+    }
+
+    public String observe(String... params) throws ResponseException{
+        if(!isLoggedIn()){
+            return "Must be logged in to use command 'observe'\n" + help();
+        }else if(params.length != 1){
+            return "Incorrect number of parameters. 'observe' command requires parameters: <id>";
+        }else{
+            try {
+                playerColor = "WHITE";
+                game = gameList.get(Integer.parseInt(params[0]));
+                printBoard();
+                return "";
+            }catch (Exception e){
+                throw new ResponseException(400, "Error: Couldn't join game, Problem: " + e.getMessage());
+            }
+        }
+    }
+
+    public String help(){
+        String prelogin = """
+                Options:
+                - help
+                - quit
+                - login <username> <password>
+                - register <username> <password> <email>
+                """;
+        String postLogin = """
+                Options:
+                - help
+                - logout
+                - create <gameName>
+                - list
+                - join <id> <WHITE or BLACK>
+                - observe <id>
+                """;
+        return isLoggedIn()? postLogin : prelogin;
     }
 
     public String printBoard(){
@@ -285,23 +321,4 @@ public class ChessClient {
         out.print(RESET_TEXT_COLOR);
     }
 
-    public String help(){
-        String prelogin = """
-                Options:
-                - help
-                - quit
-                - login <username> <password>
-                - register <username> <password> <email>
-                """;
-        String postLogin = """
-                Options:
-                - help
-                - logout
-                - create <gameName>
-                - list
-                - join <id> <WHITE or BLACK>
-                - observe <id>
-                """;
-        return isLoggedIn()? postLogin : prelogin;
-    }
 }
