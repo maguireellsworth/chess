@@ -10,10 +10,13 @@ import models.AuthTokenModel;
 import models.GameModel;
 import models.UserModel;
 import serverfacade.ServerFacade;
+import websocket.WebSocketFacade;
+
 import static ui.EscapeSequences.*;
 
 
 import java.io.PrintStream;
+import java.net.http.WebSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -22,14 +25,15 @@ import java.util.List;
 public class ChessClient {
     private String username = "Logged out";
     private String authToken = null;
-    private ServerFacade server;
+    private ServerFacade serverFacade;
     private String serverUrl;
     private HashMap<Integer, GameModel> gameList;
     private GameModel game;
     private String playerColor;
+    private WebSocketFacade wsFacade;
 
     public ChessClient(String serverUrl){
-        server = new ServerFacade(serverUrl);
+        serverFacade = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         gameList = new HashMap<>();
     }
@@ -51,7 +55,7 @@ public class ChessClient {
                 case "list" -> list();
                 case "join" -> join(params);
                 case "observe" -> observe(params);
-                case "quit" -> "quitting";
+                case "quit" -> quit();
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -65,7 +69,7 @@ public class ChessClient {
         }else{
             UserModel userModel = new UserModel(params[0], params[1], params[2]);
             try{
-                RegisterResult result = server.registerUser(userModel);
+                RegisterResult result = serverFacade.registerUser(userModel);
                 username = result.getUsername();
                 authToken = result.getAuthToken();
                 return "Successfully Registered!";
@@ -83,7 +87,7 @@ public class ChessClient {
         }else{
             UserModel user = new UserModel(params[0], params[1], null);
             try{
-                RegisterResult result = server.loginUser(user);
+                RegisterResult result = serverFacade.loginUser(user);
                 username = result.getUsername();
                 authToken = result.getAuthToken();
                 return "Successfully Logged In!";
@@ -102,7 +106,7 @@ public class ChessClient {
             return "Must be logged in to run command 'logout'\n" + help();
         }else{
             try{
-                server.logoutUser(authToken);
+                serverFacade.logoutUser(authToken);
                 username = "Logged out";
                 authToken = null;
                 return "Successfully Logged Out!";
@@ -120,7 +124,7 @@ public class ChessClient {
         }else{
             CreateRequest request = new CreateRequest(authToken,params[0]);
             try {
-                CreateResult createResult = server.createGame(request);
+                CreateResult createResult = serverFacade.createGame(request);
                 return "Successfully Created Game!";
             }catch(ResponseException e){
                 throw new ResponseException(400, "Error: Couldn't create game");
@@ -134,7 +138,7 @@ public class ChessClient {
         }else{
             try {
                 gameList = new HashMap<>();
-                List<GameModel> games = server.listGames(authToken).getGames();
+                List<GameModel> games = serverFacade.listGames(authToken).getGames();
                 String format = "%d) GameName: %s, WhiteUsername: %s, BlackUsername: %s\n";
                 StringBuilder returnString = new StringBuilder();
                 for (int i = 0; i < games.size(); i++) {
@@ -166,7 +170,7 @@ public class ChessClient {
                 playerColor = params[1].toUpperCase();
                 JoinRequest joinRequest = new JoinRequest(params[1].toUpperCase(), game.getGameID());
                 joinRequest.setAuthTokenModel(new AuthTokenModel(username, authToken));
-                server.joinGame(joinRequest);
+                serverFacade.joinGame(joinRequest);
                 printBoard();
                 return "Successfully Joined Game!";
             }catch (Exception e){
@@ -190,6 +194,10 @@ public class ChessClient {
                 throw new ResponseException(400, "Error: Couldn't join game");
             }
         }
+    }
+
+    public String quit(){
+        return (authToken == null)? "quitting" : "Must logout before quitting";
     }
 
     public String help(){
