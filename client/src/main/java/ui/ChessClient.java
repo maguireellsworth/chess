@@ -10,6 +10,7 @@ import models.AuthTokenModel;
 import models.GameModel;
 import models.UserModel;
 import serverfacade.ServerFacade;
+import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
 
 import static ui.EscapeSequences.*;
@@ -31,11 +32,13 @@ public class ChessClient {
     private GameModel game;
     private String playerColor;
     private WebSocketFacade wsFacade;
+    private NotificationHandler notificationHandler;
 
-    public ChessClient(String serverUrl){
+    public ChessClient(String serverUrl, NotificationHandler notificationHandler){
         serverFacade = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
         gameList = new HashMap<>();
+        this.notificationHandler = notificationHandler;
     }
 
     public String getUsername(){
@@ -166,11 +169,17 @@ public class ChessClient {
             return "Incorrect number of parameters. 'join' command requires parameters: <id> <WHITE or BLACK>";
         }else{
             try {
+                //server
                 game = gameList.get(Integer.parseInt(params[0]));
                 playerColor = params[1].toUpperCase();
                 JoinRequest joinRequest = new JoinRequest(params[1].toUpperCase(), game.getGameID());
                 joinRequest.setAuthTokenModel(new AuthTokenModel(username, authToken));
                 serverFacade.joinGame(joinRequest);
+
+                //websocket
+                wsFacade = new WebSocketFacade(serverUrl, notificationHandler);
+                wsFacade.joinGame(authToken,  game.getGameID());
+
                 printBoard();
                 return "Successfully Joined Game!";
             }catch (Exception e){

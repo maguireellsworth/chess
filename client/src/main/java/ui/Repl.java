@@ -1,15 +1,18 @@
 package ui;
 
+import websocket.NotificationHandler;
+import websocket.messages.ServerMessage;
+
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 //import static ui.EscapeSequences.SET_TEXT_COLOR_BLUE;
 
-public class Repl {
+public class Repl implements NotificationHandler {
     private final ChessClient client;
 
     public Repl(String serverUrl) {
-        client = new ChessClient(serverUrl);
+        client = new ChessClient(serverUrl, this);
     }
 
     public void run() {
@@ -37,5 +40,11 @@ public class Repl {
 
     private void printPrompt() {
         System.out.print("\n" + SET_TEXT_COLOR_YELLOW + client.getUsername() +  RESET_TEXT_COLOR + " >>> " + SET_TEXT_COLOR_GREEN);
+    }
+
+    @Override
+    public void notify(ServerMessage notification) {
+        System.out.println(SET_TEXT_COLOR_RED + "white has joined as WHITE");
+        printPrompt();
     }
 }

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import intermediaryclasses.*;
 import models.GameModel;
+import server.websocket.WebSocketHandler;
 import services.*;
 import spark.*;
 import models.UserModel;
@@ -19,6 +20,7 @@ public class Server {
     private UserService userService;
     private ClearService clearService;
     private GameService gameService;
+    private WebSocketHandler webSocketHandler;
 
     public Server(){
         try{
@@ -28,6 +30,7 @@ public class Server {
             this.userService = new UserService(userDao, authTokenDao);
             this.clearService = new ClearService(userDao, authTokenDao, gameDao);
             this.gameService = new GameService(gameDao, userService);
+            this.webSocketHandler = new WebSocketHandler(userService);
         }catch (Exception e){
             e.printStackTrace(); // Print the full exception for debugging
             System.out.println("Database could not be initialized: " + e.getMessage());
@@ -39,6 +42,7 @@ public class Server {
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
+        Spark.webSocket("/ws", webSocketHandler);
 
         // Register your endpoints and handle exceptions here.
         Spark.post("/user", this::registerUser);
