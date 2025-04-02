@@ -47,23 +47,23 @@ public class Repl implements NotificationHandler {
     @Override
     public <T extends ServerMessage> void notify(T message) {
         ServerMessage.ServerMessageType type = message.getServerMessageType();
-        if(type == ServerMessage.ServerMessageType.NOTIFICATION
-                || type == ServerMessage.ServerMessageType.ERROR) {
+        if(type == ServerMessage.ServerMessageType.NOTIFICATION) {
             System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
             printPrompt();
         }else if(type == ServerMessage.ServerMessageType.LOAD_GAME){
             //TODO make this print the updated board game
             System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
-
+            client.printBoard();
+            printPrompt();
         }else if(type == ServerMessage.ServerMessageType.ERROR){
-            setErrorText();
+            setErrorColor();
             System.out.println(message.getMessage());
             reset();
             printPrompt();
         }
     }
 
-    public void setErrorText(){
+    public void setErrorColor(){
         System.out.println(SET_BG_COLOR_RED + SET_TEXT_COLOR_BLACK);
     }
 
