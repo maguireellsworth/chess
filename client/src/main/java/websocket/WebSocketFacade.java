@@ -21,7 +21,7 @@ public class WebSocketFacade extends Endpoint {
     private Session session;
     private NotificationHandler notificationHandler;
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler){
+    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException{
         try{
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
@@ -33,35 +33,20 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-
-
-                    //Start ChatGPT code
                     JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
                     String type = jsonObject.get("serverMessageType").getAsString(); // Extract message type
 
-                    ServerMessage notification;
-                    switch (type) {
-                        case "LOAD_GAME":
-                            notification = new Gson().fromJson(jsonObject, LoadGameMessage.class);
-                            break;
-                        case "NOTIFICATION":
-                            notification = new Gson().fromJson(jsonObject, NotificationMessage.class);
-                            break;
-                        case "ERROR":
-                            notification = new Gson().fromJson(jsonObject, ErrorMessage.class);
-                            break;
-                        default:
-                            notification = new ErrorMessage("Couldn't parse message");
-                    }
+                    ServerMessage notification = switch (type) {
+                        case "LOAD_GAME" -> new Gson().fromJson(jsonObject, LoadGameMessage.class);
+                        case "NOTIFICATION" -> new Gson().fromJson(jsonObject, NotificationMessage.class);
+                        case "ERROR" -> new Gson().fromJson(jsonObject, ErrorMessage.class);
+                        default -> new ErrorMessage("Couldn't parse message");
+                    };
                     notificationHandler.notify(notification);
-                    //End ChatGPT code
-
-//                    var notification = new Gson().fromJson(message, ServerMessage.class);
-//                    notificationHandler.notify(notification);
                 }
             });
         }catch(Exception e){
-
+            throw new ResponseException(500, "Error: Couldn't establish WebSocket Connection");
         }
     }
 
