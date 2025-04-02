@@ -10,7 +10,7 @@ public class LoadGameMessage extends ServerMessage{
         this.game = game;
     }
 
-
+    @Override
     public String getMessage() {
         return game;
     }
