@@ -13,6 +13,7 @@ import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
@@ -48,21 +49,31 @@ public class ConnectionManager {
                 throw new ResponseException(500, "Error: couldn't send message to client");
             }
         }
-        for (var c : removeList) {
-            connections.remove(c.authToken);
-        }
+        removeConnections(removeList);
     }
 
-    public void broadcastError(UserGameCommand command){
+    public void broadcastError(UserGameCommand command) throws ResponseException{
+        var removeList = new ArrayList<Connection>();
         for(var c : connections.values()){
             try{
                 if(c.gameID == command.getGameID() && command.getAuthToken().equals(c.authToken)){
-                    ErrorMessage message = new ErrorMessage("Error: error not implemented");
-                    c.send(new Gson().toJson(message));
+                    if(c.session.isOpen()) {
+                        ErrorMessage message = new ErrorMessage("Error: error not implemented");
+                        c.send(new Gson().toJson(message));
+                    }else{
+                        removeList.add(c);
+                    }
                 }
             }catch(Exception e){
-
+                throw new ResponseException(500, "Error: Couldn't send message to client");
             }
+        }
+        removeConnections(removeList);
+    }
+
+    public void removeConnections(List<Connection> removeList){
+        for (var c : removeList) {
+            connections.remove(c.authToken);
         }
     }
 }

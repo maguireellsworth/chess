@@ -33,13 +33,14 @@ public class WebSocketHandler {
 
     public void joinGame(UserGameCommand command, Session session) throws Exception{
         String authToken = command.getAuthToken();
+        connections.add(authToken, session, command.getGameID());
+
         if(!userService.isValidUser(authToken)){       //or if gameID doesn't exist
             connections.broadcastError(command);
             return;
         }
-        AuthTokenModel authModel = userService.getAuthTokenModel(authToken);
 
-        connections.add(authToken, session, command.getGameID());
+        AuthTokenModel authModel = userService.getAuthTokenModel(authToken);
         var message = String.format("%s has joined the game as ______", authModel.getUsername());
 //        ChessGame game = new ChessGame();
         connections.broadcastConnect(command, message);
