@@ -3,10 +3,15 @@ package websocket;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import exception.ResponseException;
 import models.AuthTokenModel;
 import serverfacade.ServerFacade;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import javax.websocket.*;
@@ -28,8 +33,31 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    var notification = new Gson().fromJson(message, ServerMessage.class);
+
+
+                    //Start ChatGPT code
+                    JsonObject jsonObject = JsonParser.parseString(message).getAsJsonObject();
+                    String type = jsonObject.get("serverMessageType").getAsString(); // Extract message type
+
+                    ServerMessage notification;
+                    switch (type) {
+                        case "LOAD_GAME":
+                            notification = new Gson().fromJson(jsonObject, LoadGameMessage.class);
+                            break;
+                        case "NOTIFICATION":
+                            notification = new Gson().fromJson(jsonObject, NotificationMessage.class);
+                            break;
+                        case "ERROR":
+                            notification = new Gson().fromJson(jsonObject, ErrorMessage.class);
+                            break;
+                        default:
+                            notification = new ErrorMessage("Couldn't parse message");
+                    }
                     notificationHandler.notify(notification);
+                    //End ChatGPT code
+
+//                    var notification = new Gson().fromJson(message, ServerMessage.class);
+//                    notificationHandler.notify(notification);
                 }
             });
         }catch(Exception e){

@@ -180,8 +180,9 @@ public class ChessClient {
                 wsFacade = new WebSocketFacade(serverUrl, notificationHandler);
                 wsFacade.joinGame(authToken,  game.getGameID());
 
-                printBoard();
-                return "Successfully Joined Game!";
+//                printBoard();
+//                return "Successfully Joined Game!";
+                return "";
             }catch (Exception e){
                 throw new ResponseException(400, "Error: Couldn't join game");
             }

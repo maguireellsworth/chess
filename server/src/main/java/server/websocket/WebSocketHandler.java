@@ -31,14 +31,17 @@ public class WebSocketHandler {
         }
     }
 
-    public void joinGame(UserGameCommand command, Session session)throws Exception{
+    public void joinGame(UserGameCommand command, Session session) throws Exception{
         String authToken = command.getAuthToken();
+        if(!userService.isValidUser(authToken)){       //or if gameID doesn't exist
+            connections.broadcastError(command);
+            return;
+        }
         AuthTokenModel authModel = userService.getAuthTokenModel(authToken);
 
         connections.add(authToken, session, command.getGameID());
         var message = String.format("%s has joined the game as ______", authModel.getUsername());
-        ChessGame game = new ChessGame();
-        LoadGameMessage notification = new LoadGameMessage(message);
-        connections.broadcast(command, message);
+//        ChessGame game = new ChessGame();
+        connections.broadcastConnect(command, message);
     }
 }

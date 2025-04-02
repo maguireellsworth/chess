@@ -1,8 +1,10 @@
 package ui;
 
 import websocket.NotificationHandler;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
+import java.io.PrintStream;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
@@ -43,8 +45,30 @@ public class Repl implements NotificationHandler {
     }
 
     @Override
-    public void notify(ServerMessage notification) {
-        System.out.println(SET_TEXT_COLOR_RED + "white has joined as WHITE");
-        printPrompt();
+    public <T extends ServerMessage> void notify(T message) {
+        ServerMessage.ServerMessageType type = message.getServerMessageType();
+        if(type == ServerMessage.ServerMessageType.NOTIFICATION
+                || type == ServerMessage.ServerMessageType.ERROR) {
+            System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
+            printPrompt();
+        }else if(type == ServerMessage.ServerMessageType.LOAD_GAME){
+            //TODO make this print the updated board game
+            System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
+
+        }else if(type == ServerMessage.ServerMessageType.ERROR){
+            setErrorText();
+            System.out.println(message.getMessage());
+            reset();
+            printPrompt();
+        }
     }
+
+    public void setErrorText(){
+        System.out.println(SET_BG_COLOR_RED + SET_TEXT_COLOR_BLACK);
+    }
+
+    public void reset(){
+        System.out.println(RESET_BG_COLOR + RESET_TEXT_COLOR);
+    }
+
 }
