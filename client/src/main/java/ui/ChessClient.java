@@ -58,6 +58,7 @@ public class ChessClient {
                 case "list" -> list();
                 case "join" -> join(params);
                 case "observe" -> observe(params);
+                case "draw" -> draw();
                 case "quit" -> quit();
                 default -> help();
             };
@@ -107,6 +108,8 @@ public class ChessClient {
     public String logout() throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to run command 'logout'\n" + help();
+        }else if(isInGame()){
+            return "Currently in a game. Leave current game to use command 'logout'\n" + help();
         }else{
             try{
                 serverFacade.logoutUser(authToken);
@@ -124,6 +127,8 @@ public class ChessClient {
             return "Must be logged in to run command 'create'\n" + help();
         }else if(params.length != 1){
             return "Incorrect number of parameters. 'create' command requires parameters: <gamename>";
+        }else if(isInGame()){
+            return "Currently in a game. Leave current game to use command 'create'\n " + help();
         }else{
             CreateRequest request = new CreateRequest(authToken,params[0]);
             try {
@@ -138,6 +143,8 @@ public class ChessClient {
     public String list() throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to run command 'list'\n" + help();
+        }else if(isInGame()){
+            return "Currently in a game. Leave current game to use command 'list'\n" + help();
         }else{
             try {
                 gameList = new HashMap<>();
@@ -165,6 +172,8 @@ public class ChessClient {
     public String join(String... params) throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to use command 'join'\n" + help();
+        }else if(isInGame()){
+            return "Currently in a game. Leave current game to use command 'join'\n" + help();
         }else if(params.length != 2){
             return "Incorrect number of parameters. 'join' command requires parameters: <id> <WHITE or BLACK>";
         }else{
@@ -213,6 +222,20 @@ public class ChessClient {
     public String quit(){
         return (authToken == null)? "quitting" : "Must logout before quitting";
     }
+
+    public String draw(){
+        if(!isLoggedIn()){
+            return "Must be logged in to use command 'draw'\n" + help();
+        }else if(!isInGame()){
+            return "Must be in a game to use command 'draw'\n" + help();
+        }else{
+            printBoard();
+            return "";
+        }
+
+    }
+
+
 
     public boolean isInGame(){
         return game != null;
