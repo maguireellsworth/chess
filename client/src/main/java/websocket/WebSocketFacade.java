@@ -74,4 +74,13 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, "Error: couldn't observe game");
         }
     }
+
+    public void leaveGame(String authToken, int gameID) throws ResponseException{
+        try{
+            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        }catch(Exception e){
+            throw new ResponseException(500, "Error: couldn't leave game");
+        }
+    }
 }

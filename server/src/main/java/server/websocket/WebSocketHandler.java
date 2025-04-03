@@ -4,6 +4,7 @@ import chess.ChessGame;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import dataaccess.GameDao;
 import models.AuthTokenModel;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.Session;
@@ -24,10 +25,12 @@ public class WebSocketHandler {
     private ConnectionManager connections = new ConnectionManager();
     private UserService userService;
     private GameService gameService;
+    private GameDao gameDao;
 
-    public WebSocketHandler(UserService userService, GameService gameService){
+    public WebSocketHandler(UserService userService, GameService gameService, GameDao gameDao){
         this.userService = userService;
         this.gameService = gameService;
+        this.gameDao = gameDao;
     }
 
     @OnWebSocketMessage
@@ -44,6 +47,7 @@ public class WebSocketHandler {
 //        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch(command.getCommandType()){
             case CONNECT -> joinGame((ConnectCommand) command, session);
+            case LEAVE -> leaveGame(command, session);
         }
     }
 
@@ -66,5 +70,19 @@ public class WebSocketHandler {
         }
 //        ChessGame game = new ChessGame();
         connections.broadcastConnect(command, message);
+    }
+
+    public void leaveGame(UserGameCommand command, Session session) throws Exception{
+        String authToken = command.getAuthToken();
+        int gameID = command.getGameID();
+
+        if(!userService.isValidUser(authToken) || !gameService.isValidGame(gameID)){
+            connections.broadcastError(command);
+            return;
+        }
+
+        AuthTokenModel authModel = userService.getAuthTokenModel(authToken);
+        String message = String.format("%s has left the game", authModel.getUsername());
+        connections.broadcastLeave(command, message);
     }
 }

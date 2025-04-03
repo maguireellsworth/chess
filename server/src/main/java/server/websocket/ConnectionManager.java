@@ -71,6 +71,28 @@ public class ConnectionManager {
         removeConnections(removeList);
     }
 
+    public void broadcastLeave(UserGameCommand command, String message) throws ResponseException{
+        var removeList = new ArrayList<Connection>();
+        for(var c : connections.values()){
+            try{
+                if(c.gameID == command.getGameID()){
+                    if(c.session.isOpen()){
+                        if(command.getAuthToken().equals(c.authToken)){
+                            message = "Successfully left game";
+                        }
+                    }else{
+                        removeList.add(c);
+                    }
+                }
+                NotificationMessage notificationMessage = new NotificationMessage(message);
+                c.send(new Gson().toJson(notificationMessage));
+
+            }catch(Exception e){
+                throw new ResponseException(500, "Error: Couldn't send message to client");
+            }
+        }
+    }
+
     public void removeConnections(List<Connection> removeList){
         for (var c : removeList) {
             connections.remove(c.authToken);

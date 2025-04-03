@@ -30,7 +30,7 @@ public class ChessClient {
     private String serverUrl;
     private HashMap<Integer, GameModel> gameList;
     private GameModel game = null;
-    private String playerColor;
+    private String playerColor = null;
     private WebSocketFacade wsFacade;
     private NotificationHandler notificationHandler;
 
@@ -237,13 +237,20 @@ public class ChessClient {
 
     }
 
-    private String leave() {
+    private String leave() throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to use command 'leave'\n" + help();
         }else if(!isInGame()){
             return "Must be in a game to use command 'leave'\n" + help();
         }else{
-            return "Leave Not Implemented";
+            try{
+                wsFacade.leaveGame(authToken, game.getGameID());
+                game = null;
+                playerColor = null;
+                return "";
+            }catch(Exception e){
+                throw new ResponseException(400, "Error: couldn't leave game");
+            }
         }
     }
 
