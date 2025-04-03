@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import exception.ResponseException;
 import models.AuthTokenModel;
 import serverfacade.ServerFacade;
+import websocket.commands.ConnectCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -55,9 +56,9 @@ public class WebSocketFacade extends Endpoint {
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
 
-    public void joinGame(String authToken, int gameID) throws Exception{
+    public void joinGame(String authToken, int gameID, String playerColor) throws Exception{
         try{
-            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID);
+            ConnectCommand command = new ConnectCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, playerColor);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         }catch(Exception e){
             throw new ResponseException(500, "Error: couldn't join game ws");

@@ -178,7 +178,7 @@ public class ChessClient {
 
                 //websocket
                 wsFacade = new WebSocketFacade(serverUrl, notificationHandler);
-                wsFacade.joinGame(authToken,  game.getGameID());
+                wsFacade.joinGame(authToken,  game.getGameID(), playerColor);
 
 //                printBoard();
 //                return "Successfully Joined Game!";
