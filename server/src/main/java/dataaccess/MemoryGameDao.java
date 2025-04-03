@@ -39,6 +39,10 @@ public class MemoryGameDao implements GameDao{
         return games.get(gameID);
     }
 
+    public boolean gameExists(int gameI){
+        return games.get(gameID) != null;
+    }
+
 
     private void incrementID(){
         gameID += 1;

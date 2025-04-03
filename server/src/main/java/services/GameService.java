@@ -47,4 +47,8 @@ public class GameService {
         gameDao.joinGame(request);
     }
 
+    public boolean isValidGame(int gameID) throws Exception{
+        return gameDao.gameExists(gameID);
+    }
+
 }

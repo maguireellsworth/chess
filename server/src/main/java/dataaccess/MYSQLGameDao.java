@@ -107,4 +107,18 @@ public class MYSQLGameDao implements GameDao{
             throw new Exception("Error: spotAvailble, Problem: " + e.getMessage());
         }
     }
+
+    public boolean gameExists(int gameID) throws Exception{
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT * from games WHERE game_id = ?";
+            try(var preparedStatement = conn.prepareStatement(statement)){
+                preparedStatement.setInt(1, gameID);
+                try(var result = preparedStatement.executeQuery()){
+                    return result.next();
+                }
+            }
+        }catch (Exception e){
+            throw new Exception("Error: authTokenExists, Problem: " + e.getMessage());
+        }
+    }
 }

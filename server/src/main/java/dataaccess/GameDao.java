@@ -17,4 +17,6 @@ public interface GameDao {
     GameModel getGame(int gameID) throws Exception;
 
     void joinGame(JoinRequest joinRequest) throws Exception;
+
+    boolean gameExists(int gameID) throws Exception;
 }
