@@ -58,7 +58,12 @@ public class WebSocketHandler {
         }
 
         AuthTokenModel authModel = userService.getAuthTokenModel(authToken);
-        var message = String.format("%s has joined the game as %s", authModel.getUsername(), command.getPlayerColor());
+        String message;
+        if(command.getPlayerColor() != null){
+            message = String.format("%s has joined the game as %s", authModel.getUsername(), command.getPlayerColor());
+        }else{
+            message = String.format("%s is observing the game", authModel.getUsername());
+        }
 //        ChessGame game = new ChessGame();
         connections.broadcastConnect(command, message);
     }

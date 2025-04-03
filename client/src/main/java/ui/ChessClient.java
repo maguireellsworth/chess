@@ -29,7 +29,7 @@ public class ChessClient {
     private ServerFacade serverFacade;
     private String serverUrl;
     private HashMap<Integer, GameModel> gameList;
-    private GameModel game;
+    private GameModel game = null;
     private String playerColor;
     private WebSocketFacade wsFacade;
     private NotificationHandler notificationHandler;
@@ -198,7 +198,11 @@ public class ChessClient {
             try {
                 playerColor = "WHITE";
                 game = gameList.get(Integer.parseInt(params[0]));
-                printBoard();
+
+                //websocket
+                wsFacade = new WebSocketFacade(serverUrl, notificationHandler);
+                wsFacade.observeGame(authToken, game.getGameID());
+                //                printBoard();
                 return "";
             }catch (Exception e){
                 throw new ResponseException(400, "Error: Couldn't join game");
@@ -208,6 +212,10 @@ public class ChessClient {
 
     public String quit(){
         return (authToken == null)? "quitting" : "Must logout before quitting";
+    }
+
+    public boolean isInGame(){
+        return game != null;
     }
 
     public String help(){
@@ -227,7 +235,24 @@ public class ChessClient {
                 - join <id> <WHITE or BLACK>
                 - observe <id>
                 """;
-        return isLoggedIn()? postLogin : prelogin;
+        String inGame = """
+                Options:
+                - help
+                - draw
+                - leave
+                - move <from> <to>
+                - resign
+                - highlight <position>
+                """;
+        if(isLoggedIn()){
+            if(isInGame()){
+                return inGame;
+            }else{
+                return postLogin;
+            }
+        }else{
+            return prelogin;
+        }
     }
 
     public String printBoard(){
