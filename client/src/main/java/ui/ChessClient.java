@@ -59,6 +59,8 @@ public class ChessClient {
                 case "join" -> join(params);
                 case "observe" -> observe(params);
                 case "draw" -> draw();
+                case "leave" -> leave();
+                case "move" -> move(params);
                 case "quit" -> quit();
                 default -> help();
             };
@@ -67,7 +69,7 @@ public class ChessClient {
         }
     }
 
-    public String register(String... params) throws ResponseException{
+    private String register(String... params) throws ResponseException{
         if(params.length != 3){
             return "Incorrect number of parameters. 'register' command requires parameters: <username> <password> <email>";
         }else{
@@ -83,7 +85,7 @@ public class ChessClient {
         }
     }
 
-    public String login(String... params) throws ResponseException{
+    private String login(String... params) throws ResponseException{
         if(params.length != 2){
             return "Incorrect number of parameters. 'login' command requires parameters: <username> <password>";
         }else if(isLoggedIn()){
@@ -101,11 +103,11 @@ public class ChessClient {
         }
     }
 
-    public boolean isLoggedIn(){
+    private boolean isLoggedIn(){
         return authToken != null;
     }
 
-    public String logout() throws ResponseException{
+    private String logout() throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to run command 'logout'\n" + help();
         }else if(isInGame()){
@@ -122,7 +124,7 @@ public class ChessClient {
         }
     }
 
-    public String create(String... params) throws ResponseException{
+    private String create(String... params) throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to run command 'create'\n" + help();
         }else if(params.length != 1){
@@ -140,7 +142,7 @@ public class ChessClient {
         }
     }
 
-    public String list() throws ResponseException{
+    private String list() throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to run command 'list'\n" + help();
         }else if(isInGame()){
@@ -169,7 +171,7 @@ public class ChessClient {
         }
     }
 
-    public String join(String... params) throws ResponseException{
+    private String join(String... params) throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to use command 'join'\n" + help();
         }else if(isInGame()){
@@ -198,7 +200,7 @@ public class ChessClient {
         }
     }
 
-    public String observe(String... params) throws ResponseException{
+    private String observe(String... params) throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to use command 'observe'\n" + help();
         }else if(params.length != 1){
@@ -219,11 +221,11 @@ public class ChessClient {
         }
     }
 
-    public String quit(){
+    private String quit(){
         return (authToken == null)? "quitting" : "Must logout before quitting";
     }
 
-    public String draw(){
+    private String draw(){
         if(!isLoggedIn()){
             return "Must be logged in to use command 'draw'\n" + help();
         }else if(!isInGame()){
@@ -235,7 +237,48 @@ public class ChessClient {
 
     }
 
+    private String leave() {
+        if(!isLoggedIn()){
+            return "Must be logged in to use command 'leave'\n" + help();
+        }else if(!isInGame()){
+            return "Must be in a game to use command 'leave'\n" + help();
+        }else{
+            return "Leave Not Implemented";
+        }
+    }
 
+    private String move(String... params) {
+        if(!isLoggedIn()){
+            return "Must be logged in to use command 'move'\n" + help();
+        }else if(!isInGame()){
+            return "Must be in a game to use command 'move'\n" + help();
+        }else if(params.length != 2){
+            return  "Incorrect number of parameters. 'move' command requires parameters: <from> <to>";
+        }else{
+            return "Move Not Implemented";
+        }
+    }
+
+    public String resign(){
+        if(!isLoggedIn()){
+            return "Must be logged in to use command 'resign'\n" + help();
+        }else if(!isInGame()){
+            return "Must be in a game to use command 'resign'\n" + help();
+        }else{
+            return "Resign Not Implemented";
+        }
+    }
+    public String highlight(String... params){
+        if(!isLoggedIn()){
+            return "Must be logged in to use command 'highlight'\n" + help();
+        }else if(!isInGame()){
+            return "Must be in a game to use command 'highlight'\n" + help();
+        }else if(params.length != 1){
+            return "Incorrect number of parameters. 'highlight' command requires parameters: <position>";
+        }else{
+            return "Resign Not Implemented";
+        }
+    }
 
     public boolean isInGame(){
         return game != null;
