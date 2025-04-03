@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dataaccess.GameDao;
+import intermediaryclasses.JoinRequest;
 import models.AuthTokenModel;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.Session;
@@ -13,6 +14,7 @@ import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
 import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import services.GameService;
 import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 
@@ -39,6 +41,7 @@ public class WebSocketHandler {
         String type = jsonObject.get("commandType").getAsString();
         UserGameCommand command = switch(type){
             case "CONNECT" -> new Gson().fromJson(jsonObject, ConnectCommand.class);
+            case "LEAVE" -> new Gson().fromJson(jsonObject, LeaveCommand.class);
             case "MAKE_MOVE" -> new Gson().fromJson(jsonObject, MakeMoveCommand.class);
             default -> new Gson().fromJson(jsonObject, UserGameCommand.class);
         };
@@ -47,7 +50,7 @@ public class WebSocketHandler {
 //        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch(command.getCommandType()){
             case CONNECT -> joinGame((ConnectCommand) command, session);
-            case LEAVE -> leaveGame(command, session);
+            case LEAVE -> leaveGame((LeaveCommand) command, session);
         }
     }
 
@@ -72,7 +75,7 @@ public class WebSocketHandler {
         connections.broadcastConnect(command, message);
     }
 
-    public void leaveGame(UserGameCommand command, Session session) throws Exception{
+    public void leaveGame(LeaveCommand command, Session session) throws Exception{
         String authToken = command.getAuthToken();
         int gameID = command.getGameID();
 
@@ -80,6 +83,8 @@ public class WebSocketHandler {
             connections.broadcastError(command);
             return;
         }
+        //update game in database
+        gameDao.leaveGame(command.getPlayerColor(), command.getGameID());
 
         AuthTokenModel authModel = userService.getAuthTokenModel(authToken);
         String message = String.format("%s has left the game", authModel.getUsername());

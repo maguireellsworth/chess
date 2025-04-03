@@ -77,20 +77,21 @@ public class ConnectionManager {
             try{
                 if(c.gameID == command.getGameID()){
                     if(c.session.isOpen()){
-                        if(command.getAuthToken().equals(c.authToken)){
-                            message = "Successfully left game";
+                        if(!command.getAuthToken().equals(c.authToken)){
+                            NotificationMessage notificationMessage = new NotificationMessage(message);
+                            c.send(new Gson().toJson(notificationMessage));
+                        }else{
+                            removeList.add(c);
                         }
                     }else{
                         removeList.add(c);
                     }
                 }
-                NotificationMessage notificationMessage = new NotificationMessage(message);
-                c.send(new Gson().toJson(notificationMessage));
-
             }catch(Exception e){
                 throw new ResponseException(500, "Error: Couldn't send message to client");
             }
         }
+        removeConnections(removeList);
     }
 
     public void removeConnections(List<Connection> removeList){

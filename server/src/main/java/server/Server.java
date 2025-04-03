@@ -30,7 +30,7 @@ public class Server {
             this.userService = new UserService(userDao, authTokenDao);
             this.clearService = new ClearService(userDao, authTokenDao, gameDao);
             this.gameService = new GameService(gameDao, userService);
-            this.webSocketHandler = new WebSocketHandler(userService, gameService);
+            this.webSocketHandler = new WebSocketHandler(userService, gameService, gameDao);
         }catch (Exception e){
             e.printStackTrace(); // Print the full exception for debugging
             System.out.println("Database could not be initialized: " + e.getMessage());

@@ -75,15 +75,23 @@ public class MYSQLGameDao implements GameDao{
         if(!colorAvailble(joinRequest)){
             throw new UserAlreadyExistsException("Error: Color is already taken");
         }
-        String statement;
-        if(joinRequest.getPlayerColor().equals("WHITE")){
-            statement = "UPDATE games SET white_username = ? WHERE game_id = ?";
-        }else if(joinRequest.getPlayerColor().equals("BLACK")){
-            statement = "UPDATE games SET black_username = ? WHERE game_id = ?";
+        String statement =getUpdateGameStatement(joinRequest.getPlayerColor());
+        dbHelper.executeUpdate(statement, joinRequest.getAuthTokenModel().getUsername(), joinRequest.getGameID());
+    }
+
+    public void leaveGame(String playerColor, int gameID) throws Exception{
+        String statement = getUpdateGameStatement(playerColor);
+        dbHelper.executeUpdate(statement, null, gameID);
+    }
+
+    public String getUpdateGameStatement(String playerColor){
+        if(playerColor.equals("WHITE")){
+            return "UPDATE games SET white_username = ? WHERE game_id = ?";
+        }else if(playerColor.equals("BLACK")){
+            return "UPDATE games SET black_username = ? WHERE game_id = ?";
         }else{
             throw new InvalidUserDataException("Error: Player Color cannot be left blank");
         }
-        dbHelper.executeUpdate(statement, joinRequest.getAuthTokenModel().getUsername(), joinRequest.getGameID());
     }
 
     public boolean colorAvailble(JoinRequest joinRequest)throws Exception{

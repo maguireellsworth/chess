@@ -4,6 +4,7 @@ import services.InvalidUserDataException;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 
 public class DatabaseHelper {
 
@@ -16,6 +17,8 @@ public class DatabaseHelper {
                         preparedStatement.setString(i + 1, p);
                     } else if (param instanceof Integer p) {
                         preparedStatement.setInt(i + 1, p);
+                    }else{
+                        preparedStatement.setNull(i + 1, Types.VARCHAR);
                     }
                 }
                 preparedStatement.executeUpdate();

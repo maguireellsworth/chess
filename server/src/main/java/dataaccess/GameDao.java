@@ -19,4 +19,6 @@ public interface GameDao {
     void joinGame(JoinRequest joinRequest) throws Exception;
 
     boolean gameExists(int gameID) throws Exception;
+
+    void leaveGame(String playerColor, int gameID) throws Exception;
 }

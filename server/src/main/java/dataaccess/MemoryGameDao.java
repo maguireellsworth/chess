@@ -43,6 +43,11 @@ public class MemoryGameDao implements GameDao{
         return games.get(gameID) != null;
     }
 
+    @Override
+    public void leaveGame(String playerColor, int gameID) throws Exception {
+
+    }
+
 
     private void incrementID(){
         gameID += 1;

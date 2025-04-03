@@ -9,6 +9,7 @@ import exception.ResponseException;
 import models.AuthTokenModel;
 import serverfacade.ServerFacade;
 import websocket.commands.ConnectCommand;
+import websocket.commands.LeaveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -75,9 +76,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 
-    public void leaveGame(String authToken, int gameID) throws ResponseException{
+    public void leaveGame(String authToken, int gameID, String playerColor) throws ResponseException{
         try{
-            UserGameCommand command = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID);
+            LeaveCommand command = new LeaveCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, playerColor);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         }catch(Exception e){
             throw new ResponseException(500, "Error: couldn't leave game");
