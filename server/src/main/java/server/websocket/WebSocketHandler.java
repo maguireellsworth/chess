@@ -1,12 +1,16 @@
 package server.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPosition;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dataaccess.GameDao;
+import exception.ResponseException;
 import intermediaryclasses.JoinRequest;
 import models.AuthTokenModel;
+import models.GameModel;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.OnWebSocketConnect;
@@ -24,10 +28,10 @@ import websocket.messages.ServerMessage;
 
 @WebSocket
 public class WebSocketHandler {
-    private ConnectionManager connections = new ConnectionManager();
-    private UserService userService;
-    private GameService gameService;
-    private GameDao gameDao;
+    private final ConnectionManager connections = new ConnectionManager();
+    private final UserService userService;
+    private final GameService gameService;
+    private final GameDao gameDao;
 
     public WebSocketHandler(UserService userService, GameService gameService, GameDao gameDao){
         this.userService = userService;
@@ -46,48 +50,62 @@ public class WebSocketHandler {
             default -> new Gson().fromJson(jsonObject, UserGameCommand.class);
         };
 
-
-//        UserGameCommand command = new Gson().fromJson(message, UserGameCommand.class);
         switch(command.getCommandType()){
             case CONNECT -> joinGame((ConnectCommand) command, session);
             case LEAVE -> leaveGame((LeaveCommand) command, session);
+//            case MAKE_MOVE -> makeMove((MakeMoveCommand) command, session);
         }
     }
 
-    public  void joinGame(ConnectCommand command, Session session) throws Exception{
-        String authToken = command.getAuthToken();
-        int gameID = command.getGameID();
-        connections.add(authToken, session, gameID);
+    public  void joinGame(ConnectCommand command, Session session) throws ResponseException {
+        try {
+            connections.add(command.getAuthToken(), session, command.getGameID());
 
-        if(!userService.isValidUser(authToken) || !gameService.isValidGame(gameID)){
-            connections.broadcastError(command);
-            return;
-        }
+            if (isNotValidCommand(command)) {
+                String message = "User not authorized or invalid game";
+                connections.broadcastError(command, session, message);
+                return;
+            }
 
-        AuthTokenModel authModel = userService.getAuthTokenModel(authToken);
-        String message;
-        if(command.getPlayerColor() != null){
-            message = String.format("%s has joined the game as %s", authModel.getUsername(), command.getPlayerColor());
-        }else{
-            message = String.format("%s is observing the game", authModel.getUsername());
+            AuthTokenModel authModel = userService.getAuthTokenModel(command.getAuthToken());
+            GameModel gameModel = gameDao.getGame(command.getGameID());
+            String message;
+            if (command.getPlayerColor() != null) {
+                message = String.format("%s has joined the game as %s", authModel.getUsername(), command.getPlayerColor());
+            } else {
+                message = String.format("%s is observing the game", authModel.getUsername());
+            }
+            connections.broadcastConnect(command, message, gameModel.getGame());
+        }catch(Exception e){
+            throw new ResponseException(500, "Error: joinGame handler, Problem: " + e.getMessage());
         }
-//        ChessGame game = new ChessGame();
-        connections.broadcastConnect(command, message);
     }
 
     public void leaveGame(LeaveCommand command, Session session) throws Exception{
+        try{
+            if(isNotValidCommand(command)){
+                String message = "User not authorized or invalid game";
+                connections.broadcastError(command, session, message);
+                return;
+            }
+
+            //update game in database
+            gameDao.leaveGame(command.getPlayerColor(), command.getGameID());
+
+            AuthTokenModel authModel = userService.getAuthTokenModel(command.getAuthToken());
+            String message = String.format("%s has left the game", authModel.getUsername());
+            connections.broadcastLeave(command, message);
+        }catch(Exception e){
+            throw new ResponseException(500, "Error: leaveGame handler, Problem: " + e.getMessage());
+        }
+
+    }
+
+
+    public <T extends UserGameCommand> boolean isNotValidCommand(T command) throws Exception{
         String authToken = command.getAuthToken();
         int gameID = command.getGameID();
 
-        if(!userService.isValidUser(authToken) || !gameService.isValidGame(gameID)){
-            connections.broadcastError(command);
-            return;
-        }
-        //update game in database
-        gameDao.leaveGame(command.getPlayerColor(), command.getGameID());
-
-        AuthTokenModel authModel = userService.getAuthTokenModel(authToken);
-        String message = String.format("%s has left the game", authModel.getUsername());
-        connections.broadcastLeave(command, message);
+        return !(userService.isValidUser(authToken) && gameService.isValidGame(gameID));
     }
 }

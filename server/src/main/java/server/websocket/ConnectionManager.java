@@ -1,11 +1,14 @@
 package server.websocket;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import models.AuthTokenModel;
+import models.GameModel;
 import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.Session;
 import org.glassfish.grizzly.utils.EchoFilter;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -28,14 +31,14 @@ public class ConnectionManager {
         connections.remove(visitorName);
     }
 
-    public void broadcastConnect(UserGameCommand command, String message) throws ResponseException {
+    public void broadcastConnect(UserGameCommand command, String message, ChessGame game) throws ResponseException {
         var removeList = new ArrayList<Connection>();
         for (var c : connections.values()) {
             try {
                 if (c.gameID == command.getGameID()) {
                     if(c.session.isOpen()){
                         if (command.getAuthToken().equals(c.authToken)) {
-                            LoadGameMessage msg = new LoadGameMessage("load game message");
+                            LoadGameMessage msg = new LoadGameMessage(game);
                             c.send(new Gson().toJson(msg));
                         } else {
                             NotificationMessage msg = new NotificationMessage(message);
@@ -52,14 +55,14 @@ public class ConnectionManager {
         removeConnections(removeList);
     }
 
-    public void broadcastError(UserGameCommand command) throws ResponseException{
+    public void broadcastError(UserGameCommand command, Session session, String message) throws ResponseException{
         var removeList = new ArrayList<Connection>();
         for(var c : connections.values()){
             try{
-                if(c.gameID == command.getGameID() && command.getAuthToken().equals(c.authToken)){
+                if(c.gameID == command.getGameID() && c.session == session){
                     if(c.session.isOpen()) {
-                        ErrorMessage message = new ErrorMessage("Error: error not implemented");
-                        c.send(new Gson().toJson(message));
+                        ErrorMessage errorMessage = new ErrorMessage("Error: " + message);
+                        c.send(new Gson().toJson(errorMessage));
                     }else{
                         removeList.add(c);
                     }
@@ -81,6 +84,7 @@ public class ConnectionManager {
                             NotificationMessage notificationMessage = new NotificationMessage(message);
                             c.send(new Gson().toJson(notificationMessage));
                         }else{
+                            c.session.close();
                             removeList.add(c);
                         }
                     }else{
