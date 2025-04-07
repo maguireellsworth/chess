@@ -53,7 +53,7 @@ public class WebSocketHandler {
         switch(command.getCommandType()){
             case CONNECT -> joinGame((ConnectCommand) command, session);
             case LEAVE -> leaveGame((LeaveCommand) command, session);
-//            case MAKE_MOVE -> makeMove((MakeMoveCommand) command, session);
+            case MAKE_MOVE -> makeMove((MakeMoveCommand) command, session);
         }
     }
 
@@ -101,6 +101,45 @@ public class WebSocketHandler {
 
     }
 
+    public void makeMove(MakeMoveCommand command, Session session) throws Exception{
+        try{
+            GameModel gameModel = gameDao.getGame(command.getGameID());
+            String playerTurn = gameModel.getGame().getTeamTurn().toString();
+            String turnUsername = playerTurn.equals("WHITE") ? gameModel.getWhiteUsername() : gameModel.getBlackUsername();
+            String commandUsername = userService.getAuthTokenModel(command.getAuthToken()).getUsername();
+            if(isNotValidCommand(command)){
+                String message = "User not authorized or invalid game";
+                connections.broadcastError(command, session, message);
+            }else if(isNotValidMoveFormat(command.getMove())){
+                String message = "Invalid move format";
+                connections.broadcastError(command, session, message);
+            }else if(!gameModel.getGame().isValidMove(command.getMove())){
+                String message = "Invalid move";
+                connections.broadcastError(command, session, message);
+            }else if(!turnUsername.equals(commandUsername)){
+                String message = "Not your turn";
+                connections.broadcastError(command, session, message);
+            }else{
+                gameModel.getGame().makeMove(command.getMove());
+                gameDao.updateGame(gameModel);
+                connections.broadcastMove(command, gameModel.getGame());
+            }
+
+        }catch(Exception e){
+            throw new ResponseException(500, "Error: makeMove Handler, Problem: " + e.getMessage());
+        }
+    }
+
+    public boolean isNotValidMoveFormat(ChessMove move){
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        return (start.getColumn() == -1
+                || start.getRow() < 0
+                ||start.getRow() > 8
+                || end.getColumn() == -1
+                || end.getRow() < 0
+                || end.getRow() > 8);
+    }
 
     public <T extends UserGameCommand> boolean isNotValidCommand(T command) throws Exception{
         String authToken = command.getAuthToken();

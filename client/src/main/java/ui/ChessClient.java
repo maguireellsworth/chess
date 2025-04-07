@@ -1,9 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import exception.ResponseException;
 import intermediaryclasses.*;
 import models.AuthTokenModel;
@@ -61,6 +58,8 @@ public class ChessClient {
                 case "draw" -> draw();
                 case "leave" -> leave();
                 case "move" -> move(params);
+                case "resign" -> resign();
+                case "highlight" -> highlight(params);
                 case "quit" -> quit();
                 default -> help();
             };
@@ -249,12 +248,12 @@ public class ChessClient {
                 playerColor = null;
                 return "";
             }catch(Exception e){
-                throw new ResponseException(400, "Error: couldn't leave game");
+                throw new ResponseException(400, "Error: couldn't leave game, Problem: " + e.getMessage());
             }
         }
     }
 
-    private String move(String... params) {
+    private String move(String... params) throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to use command 'move'\n" + help();
         }else if(!isInGame()){
@@ -262,7 +261,15 @@ public class ChessClient {
         }else if(params.length != 2){
             return  "Incorrect number of parameters. 'move' command requires parameters: <from> <to>";
         }else{
-            return "Move Not Implemented";
+            try{
+                ChessPosition start = notationToPosition(params[0]);
+                ChessPosition end = notationToPosition(params[1]);
+                ChessMove move = new ChessMove(start, end, null);
+                wsFacade.makeMove(authToken, game.getGameID(), move);
+                return "";
+            }catch(Exception e){
+                throw new ResponseException(400, "Error: couldn't make move, Problem: " + e.getMessage());
+            }
         }
     }
 
@@ -326,6 +333,26 @@ public class ChessClient {
         }else{
             return prelogin;
         }
+    }
+
+    public ChessPosition notationToPosition(String space){
+        String[] letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
+        String colString = space.substring(0, 1);
+        int col = -1;
+        for(int i = 0; i < letters.length; i++){
+            if(letters[i].equals(colString)){
+                col = i + 1;
+                break;
+            }
+        }
+        int row = Integer.parseInt(space.substring(1));
+
+        return new ChessPosition(row, col);
+    }
+
+    public void updateGame(ChessGame game){
+        this.game.setGame(game);
+        printBoard();
     }
 
     public String printBoard(){

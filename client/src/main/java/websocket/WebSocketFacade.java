@@ -2,6 +2,7 @@ package websocket;
 
 
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -10,6 +11,7 @@ import models.AuthTokenModel;
 import serverfacade.ServerFacade;
 import websocket.commands.ConnectCommand;
 import websocket.commands.LeaveCommand;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -81,7 +83,16 @@ public class WebSocketFacade extends Endpoint {
             LeaveCommand command = new LeaveCommand(UserGameCommand.CommandType.LEAVE, authToken, gameID, playerColor);
             this.session.getBasicRemote().sendText(new Gson().toJson(command));
         }catch(Exception e){
-            throw new ResponseException(500, "Error: couldn't leave game");
+            throw new ResponseException(500, "Error: couldn't leave game, Problem: " + e.getMessage());
+        }
+    }
+
+    public void makeMove(String authToken, int gameID, ChessMove move)  throws ResponseException{
+        try{
+            MakeMoveCommand command = new MakeMoveCommand(UserGameCommand.CommandType.MAKE_MOVE,authToken, gameID, move);
+            this.session.getBasicRemote().sendText(new Gson().toJson(command));
+        }catch(Exception e){
+            throw new ResponseException(500, "Error: couldn't make move, Problem: " + e.getMessage());
         }
     }
 }

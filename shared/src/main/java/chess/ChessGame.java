@@ -113,6 +113,16 @@ public class ChessGame {
         teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
 
+    public boolean isValidMove(ChessMove move){
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        for(ChessMove m : validMoves){
+            if(move.equals(m)){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public ChessPosition getKingPosition(ChessBoard board, TeamColor color){
         for(int i = 1; i <= 8; i++){
