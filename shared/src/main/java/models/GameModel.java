@@ -17,6 +17,14 @@ public class GameModel {
         this.gameID = gameID;
     }
 
+    public GameModel(ChessGame game, String gameName, int gameID, String whiteUsername, String blackUsername) {
+        this.game = game;
+        this.gameName = gameName;
+        this.blackUsername = blackUsername;
+        this.whiteUsername = whiteUsername;
+        this.gameID = gameID;
+    }
+
     public int getGameID(){
         return gameID;
     }
@@ -43,6 +51,10 @@ public class GameModel {
 
     public void setBlackUsername(String blackUsername) {
         this.blackUsername = blackUsername;
+    }
+
+    public void setGame(ChessGame game){
+        this.game = game;
     }
 }
 

@@ -21,4 +21,6 @@ public interface GameDao {
     boolean gameExists(int gameID) throws Exception;
 
     void leaveGame(String playerColor, int gameID) throws Exception;
+
+    void updateGame(GameModel gameModel) throws Exception;
 }

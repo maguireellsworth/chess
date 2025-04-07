@@ -67,24 +67,43 @@ public class MYSQLGameDao implements GameDao{
     }
 
     @Override
-    public GameModel getGame(int gameID){
-        return null;
+    public GameModel getGame(int gameID) throws Exception{
+        try(var conn = DatabaseManager.getConnection()){
+            var statement = "SELECT * from games WHERE game_id = ?";
+            try(var preparedStatement = conn.prepareStatement(statement)){
+                preparedStatement.setInt(1, gameID);
+                try(var result = preparedStatement.executeQuery()){
+                    if(result.next()){
+                        int ID = result.getInt("game_id");
+                        String whiteUsername = result.getString("white_username");
+                        String blackUsername = result.getString("black_username");
+                        String gameName = result.getString("game_name");
+                        ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
+                        return new GameModel(game, gameName, ID, whiteUsername, blackUsername);
+                    }else{
+                        return null;
+                    }
+                }
+            }
+        }catch (Exception e){
+            throw new Exception("Error: authTokenExists, Problem: " + e.getMessage());
+        }
     }
 
     public void joinGame(JoinRequest joinRequest) throws Exception{
-        if(!colorAvailble(joinRequest)){
+        if(!colorAvailable(joinRequest)){
             throw new UserAlreadyExistsException("Error: Color is already taken");
         }
-        String statement =getUpdateGameStatement(joinRequest.getPlayerColor());
+        String statement = getUpdateUserStatement(joinRequest.getPlayerColor());
         dbHelper.executeUpdate(statement, joinRequest.getAuthTokenModel().getUsername(), joinRequest.getGameID());
     }
 
     public void leaveGame(String playerColor, int gameID) throws Exception{
-        String statement = getUpdateGameStatement(playerColor);
+        String statement = getUpdateUserStatement(playerColor);
         dbHelper.executeUpdate(statement, null, gameID);
     }
 
-    public String getUpdateGameStatement(String playerColor){
+    public String getUpdateUserStatement(String playerColor){
         if(playerColor.equals("WHITE")){
             return "UPDATE games SET white_username = ? WHERE game_id = ?";
         }else if(playerColor.equals("BLACK")){
@@ -94,7 +113,7 @@ public class MYSQLGameDao implements GameDao{
         }
     }
 
-    public boolean colorAvailble(JoinRequest joinRequest)throws Exception{
+    public boolean colorAvailable(JoinRequest joinRequest)throws Exception{
         try(var conn = DatabaseManager.getConnection()){
             String columnName;
             if(joinRequest.getPlayerColor().equals("WHITE")){
@@ -112,7 +131,7 @@ public class MYSQLGameDao implements GameDao{
                 }
             }
         }catch(Exception e){
-            throw new Exception("Error: spotAvailble, Problem: " + e.getMessage());
+            throw new Exception("Error: spotAvailable, Problem: " + e.getMessage());
         }
     }
 
@@ -128,5 +147,10 @@ public class MYSQLGameDao implements GameDao{
         }catch (Exception e){
             throw new Exception("Error: authTokenExists, Problem: " + e.getMessage());
         }
+    }
+
+    public void updateGame(GameModel gameModel) throws Exception{
+        String statement = "UPDATE games SET game = ? WHERE game_id = ?";
+        dbHelper.executeUpdate(statement, new Gson().toJson(gameModel.getGame()), gameModel.getGameID());
     }
 }

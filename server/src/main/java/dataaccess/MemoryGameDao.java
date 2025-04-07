@@ -48,6 +48,10 @@ public class MemoryGameDao implements GameDao{
 
     }
 
+    @Override
+    public void updateGame(GameModel gameModel) throws Exception {
+
+    }
 
     private void incrementID(){
         gameID += 1;
