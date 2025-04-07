@@ -1,7 +1,9 @@
 package ui;
 
 import websocket.NotificationHandler;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import java.io.PrintStream;
@@ -46,18 +48,17 @@ public class Repl implements NotificationHandler {
 
     @Override
     public <T extends ServerMessage> void notify(T message) {
-        ServerMessage.ServerMessageType type = message.getServerMessageType();
-        if(type == ServerMessage.ServerMessageType.NOTIFICATION) {
+        if(message instanceof NotificationMessage){
             System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
             printPrompt();
-        }else if(type == ServerMessage.ServerMessageType.LOAD_GAME){
-            //TODO make this print the updated board game
-            System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
-            client.printBoard();
+        }else if(message instanceof LoadGameMessage){
+//            System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
+            System.out.println("It made it here!");
+            client.updateGame(((LoadGameMessage) message).getGame());
             printPrompt();
-        }else if(type == ServerMessage.ServerMessageType.ERROR){
+        }else if(message instanceof ErrorMessage){
             setErrorColor();
-            System.out.println(message.getMessage());
+            System.out.println(SET_BG_COLOR_RED + message.getMessage());
             reset();
             printPrompt();
         }
