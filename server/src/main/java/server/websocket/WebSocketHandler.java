@@ -119,35 +119,54 @@ public class WebSocketHandler {
             GameModel gameModel = gameDao.getGame(command.getGameID());
             String commandUsername = userService.getAuthTokenModel(command.getAuthToken()).getUsername();
             ChessPiece piece = gameModel.getGame().getBoard().getPiece(command.getMove().getStartPosition());
-            if(!isPlayer(gameModel, commandUsername)){
-                String message = "Observers cannot make moves";
-                connections.broadcastError(command, session, message);
-            }
-            else if(!isPlayerTurn(gameModel, commandUsername)){
-                String message = "Not your turn";
-                connections.broadcastError(command, session, message);
-            }
-            else if(isNotValidMoveFormat(command.getMove())){
-                String message = "Invalid move format";
-                connections.broadcastError(command, session, message);
-            }else if(piece == null){
-                String message = "Space is empty at desired location";
-                connections.broadcastError(command, session, message);
-            }else if(!isPlayerPiece(gameModel, commandUsername, piece)){
-                String message = "Not your piece";
-                connections.broadcastError(command, session, message);
-            }else if(!gameModel.getGame().isValidMove(command.getMove())) {
-                String message = "Invalid move";
-                connections.broadcastError(command, session, message);
-            }else{
+            boolean moveIsOk = checkMove(command, session, gameModel, commandUsername, piece);
+            if(moveIsOk){
                 gameModel.getGame().makeMove(command.getMove());
                 gameDao.updateGame(gameModel);
                 connections.broadcastMove(command, gameModel.getGame());
                 //TODO if king in check or stalemate send notification
+//                if(gameModel.getGame().isInCheck(ChessGame.TeamColor.WHITE)){
+//                    connections.broadcast
+//                }
             }
         }catch(Exception e){
             throw new ResponseException(500, "Error: makeMove Handler, Problem: " + e.getMessage());
         }
+    }
+
+    public boolean checkMove(MakeMoveCommand command,
+                             Session session,
+                             GameModel gameModel,
+                             String commandUsername,
+                             ChessPiece piece) throws Exception{
+        boolean moveIsOk = true;
+        if(!isPlayer(gameModel, commandUsername)){
+            String message = "Observers cannot make moves";
+            connections.broadcastError(command, session, message);
+            moveIsOk = false;
+        }
+        else if(!isPlayerTurn(gameModel, commandUsername)){
+            String message = "Not your turn";
+            connections.broadcastError(command, session, message);
+            moveIsOk = false;
+        }else if(isNotValidMoveFormat(command.getMove())){
+            String message = "Invalid move format";
+            connections.broadcastError(command, session, message);
+            moveIsOk = false;
+        }else if(piece == null){
+            String message = "Space is empty at desired location";
+            connections.broadcastError(command, session, message);
+            moveIsOk = false;
+        }else if(!isPlayerPiece(gameModel, commandUsername, piece)){
+            String message = "Not your piece";
+            connections.broadcastError(command, session, message);
+            moveIsOk = false;
+        }else if(!gameModel.getGame().isValidMove(command.getMove())) {
+            String message = "Invalid move";
+            connections.broadcastError(command, session, message);
+            moveIsOk = false;
+        }
+        return moveIsOk;
     }
 
     public boolean isPlayerPiece(GameModel model, String commandUser, ChessPiece piece){
