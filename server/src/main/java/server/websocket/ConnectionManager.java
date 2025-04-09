@@ -99,6 +99,7 @@ public class ConnectionManager {
     }
 
     public void broadcastMove(MakeMoveCommand command, ChessGame game) throws ResponseException{
+        var removeList = new ArrayList<Connection>();
         LoadGameMessage loadGameMessage = new LoadGameMessage(game);
         for(var c : connections.values()){
             try{
@@ -111,6 +112,8 @@ public class ConnectionManager {
                             String message = "player made a move (edit this later)";
                             NotificationMessage notificationMessage = new NotificationMessage(message);
                             c.send(new Gson().toJson(notificationMessage));
+                        }else{
+                            removeList.add(c);
                         }
                     }
                     //TODO if in check or stalemate send notificationMessage
@@ -119,7 +122,7 @@ public class ConnectionManager {
                 throw new ResponseException(500, "Error: Couldn't send message to client");
             }
         }
-
+        removeConnections(removeList);
     }
 
     public void removeConnections(List<Connection> removeList){

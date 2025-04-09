@@ -2,6 +2,7 @@ package server.websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -25,6 +26,8 @@ import websocket.commands.UserGameCommand;
 import services.UserService;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
+
+import java.util.Objects;
 
 @WebSocket
 public class WebSocketHandler {
@@ -103,31 +106,62 @@ public class WebSocketHandler {
 
     public void makeMove(MakeMoveCommand command, Session session) throws Exception{
         try{
-            GameModel gameModel = gameDao.getGame(command.getGameID());
-            String playerTurn = gameModel.getGame().getTeamTurn().toString();
-            String turnUsername = playerTurn.equals("WHITE") ? gameModel.getWhiteUsername() : gameModel.getBlackUsername();
-            String commandUsername = userService.getAuthTokenModel(command.getAuthToken()).getUsername();
             if(isNotValidCommand(command)){
                 String message = "User not authorized or invalid game";
                 connections.broadcastError(command, session, message);
-            }else if(isNotValidMoveFormat(command.getMove())){
+                return;
+            }
+            GameModel gameModel = gameDao.getGame(command.getGameID());
+            String commandUsername = userService.getAuthTokenModel(command.getAuthToken()).getUsername();
+            ChessPiece piece = gameModel.getGame().getBoard().getPiece(command.getMove().getStartPosition());
+            if(!isPlayer(gameModel, commandUsername)){
+                String message = "Observers cannot make moves";
+                connections.broadcastError(command, session, message);
+            }
+            else if(!isPlayerTurn(gameModel, commandUsername)){
+                String message = "Not your turn";
+                connections.broadcastError(command, session, message);
+            }
+            else if(isNotValidMoveFormat(command.getMove())){
                 String message = "Invalid move format";
                 connections.broadcastError(command, session, message);
-            }else if(!gameModel.getGame().isValidMove(command.getMove())){
-                String message = "Invalid move";
+            }else if(piece == null){
+                String message = "Space is empty at desired location";
                 connections.broadcastError(command, session, message);
-            }else if(!turnUsername.equals(commandUsername)){
-                String message = "Not your turn";
+            }else if(!isPlayerPiece(gameModel, commandUsername, piece)){
+                String message = "Not your piece";
+                connections.broadcastError(command, session, message);
+            }else if(!gameModel.getGame().isValidMove(command.getMove())) {
+                String message = "Invalid move";
                 connections.broadcastError(command, session, message);
             }else{
                 gameModel.getGame().makeMove(command.getMove());
                 gameDao.updateGame(gameModel);
                 connections.broadcastMove(command, gameModel.getGame());
+                //TODO if king in check or stalemate send notification
             }
-
         }catch(Exception e){
             throw new ResponseException(500, "Error: makeMove Handler, Problem: " + e.getMessage());
         }
+    }
+
+    public boolean isPlayerPiece(GameModel model, String commandUser, ChessPiece piece){
+        String pieceColor = piece.getTeamColor().toString();
+        String playerColor = commandUser.equals(model.getWhiteUsername()) ? "WHITE" : "BLACK";
+        return pieceColor.equals(playerColor);
+    }
+
+    public boolean isPlayerTurn(GameModel model, String commandUser){
+        String playerTurn = model.getGame().getTeamTurn().toString();
+        String turnUser = playerTurn.equals("WHITE") ? model.getWhiteUsername() : model.getBlackUsername();
+        return turnUser.equals(commandUser);
+    }
+
+    public boolean isPlayer(GameModel model, String commandUser){
+        String white = model.getWhiteUsername();
+        String black = model.getBlackUsername();
+        return ((commandUser != null && commandUser.equals(white)) ||
+                (commandUser != null && commandUser.equals(black)));
     }
 
     public boolean isNotValidMoveFormat(ChessMove move){
