@@ -244,7 +244,7 @@ public class ChessClient {
             return "Must be in a game to use command 'leave'\n" + help();
         }else{
             try{
-                wsFacade.leaveGame(authToken, game.getGameID(), playerColor);
+                wsFacade.leaveGame(authToken, game.getGameID());
                 game = null;
                 playerColor = null;
                 return "";

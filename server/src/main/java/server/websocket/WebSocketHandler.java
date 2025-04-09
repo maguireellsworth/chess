@@ -91,9 +91,14 @@ public class WebSocketHandler {
                 connections.broadcastError(command, session, message);
                 return;
             }
+            GameModel model = gameDao.getGame(command.getGameID());
+            String commandUser = userService.getAuthTokenModel(command.getAuthToken()).getUsername();
 
             //update game in database
-            gameDao.leaveGame(command.getPlayerColor(), command.getGameID());
+            if(isPlayer(model, commandUser)){
+                String playerColor = commandUser.equals(model.getWhiteUsername()) ? "WHITE" : "BLACK";
+                gameDao.leaveGame(playerColor, command.getGameID());
+            }
 
             AuthTokenModel authModel = userService.getAuthTokenModel(command.getAuthToken());
             String message = String.format("%s has left the game", authModel.getUsername());
