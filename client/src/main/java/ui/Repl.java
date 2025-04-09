@@ -1,5 +1,6 @@
 package ui;
 
+import com.google.gson.Gson;
 import websocket.NotificationHandler;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
@@ -52,20 +53,14 @@ public class Repl implements NotificationHandler {
             System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
             printPrompt();
         }else if(message instanceof LoadGameMessage){
-//            System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
             System.out.println("It made it here!");
             client.updateGame(((LoadGameMessage) message).getGame());
             printPrompt();
         }else if(message instanceof ErrorMessage){
-            setErrorColor();
-            System.out.println(SET_BG_COLOR_RED + message.getMessage());
+            System.out.println(SET_TEXT_COLOR_RED + message.getMessage());
             reset();
             printPrompt();
         }
-    }
-
-    public void setErrorColor(){
-        System.out.println(SET_BG_COLOR_RED + SET_TEXT_COLOR_BLACK);
     }
 
     public void reset(){
