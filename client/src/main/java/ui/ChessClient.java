@@ -194,6 +194,8 @@ public class ChessClient {
 //                return "Successfully Joined Game!";
                 return "";
             }catch (Exception e){
+                game = null;
+                playerColor = null;
                 throw new ResponseException(400, "Error: Couldn't join game");
             }
         }
@@ -206,13 +208,12 @@ public class ChessClient {
             return "Incorrect number of parameters. 'observe' command requires parameters: <id>";
         }else{
             try {
-                playerColor = "WHITE";
+                playerColor = null;
                 game = gameList.get(Integer.parseInt(params[0]));
 
                 //websocket
                 wsFacade = new WebSocketFacade(serverUrl, notificationHandler);
                 wsFacade.observeGame(authToken, game.getGameID());
-                //                printBoard();
                 return "";
             }catch (Exception e){
                 throw new ResponseException(400, "Error: Couldn't join game");
@@ -359,17 +360,17 @@ public class ChessClient {
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
 
         //start temp variables for testing
-        ChessBoard board = new ChessBoard();
-        board.resetBoard();
+//        ChessBoard board = new ChessBoard();
+//        board.resetBoard();
         //end temp variables for testing
 
         String[] letters = {" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
         String[] numbers = {" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
-        if(playerColor.equals("WHITE")){
-            printWhiteBoard(out, letters, numbers, board);
+        if(playerColor == null || playerColor.equals("WHITE")){
+            printWhiteBoard(out, letters, numbers, game.getGame().getBoard());
         }else{
             //swap letters and numbers
-            printBlackBoard(out, letters, numbers, board);
+            printBlackBoard(out, letters, numbers, game.getGame().getBoard());
         }
         return "";
     }
