@@ -123,11 +123,8 @@ public class WebSocketHandler {
             if(moveIsOk){
                 gameModel.getGame().makeMove(command.getMove());
                 gameDao.updateGame(gameModel);
-                connections.broadcastMove(command, gameModel.getGame());
+                connections.broadcastMove(command, gameModel.getGame(), commandUsername);
                 //TODO if king in check or stalemate send notification
-//                if(gameModel.getGame().isInCheck(ChessGame.TeamColor.WHITE)){
-//                    connections.broadcast
-//                }
             }
         }catch(Exception e){
             throw new ResponseException(500, "Error: makeMove Handler, Problem: " + e.getMessage());
