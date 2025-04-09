@@ -9,6 +9,7 @@ import models.UserModel;
 import serverfacade.ServerFacade;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
+import websocket.messages.LoadGameMessage;
 
 import static ui.EscapeSequences.*;
 
@@ -231,6 +232,7 @@ public class ChessClient {
         }else if(!isInGame()){
             return "Must be in a game to use command 'draw'\n" + help();
         }else{
+            System.out.println(game.getGame().getTeamTurn() + "'s turn");
             printBoard();
             return "";
         }
