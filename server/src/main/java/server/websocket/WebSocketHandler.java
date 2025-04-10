@@ -117,6 +117,7 @@ public class WebSocketHandler {
                 return;
             }
             GameModel gameModel = gameDao.getGame(command.getGameID());
+            ChessGame game = gameModel.getGame();
             String commandUsername = userService.getAuthTokenModel(command.getAuthToken()).getUsername();
             ChessPiece piece = gameModel.getGame().getBoard().getPiece(command.getMove().getStartPosition());
             boolean moveIsOk = checkMove(command, session, gameModel, commandUsername, piece);
@@ -124,8 +125,21 @@ public class WebSocketHandler {
                 gameModel.getGame().makeMove(command.getMove());
                 gameDao.updateGame(gameModel);
                 connections.broadcastMove(command, gameModel.getGame(), commandUsername);
-                //TODO if king in check or stalemate send notification
+                if(game.isInCheckmate(ChessGame.TeamColor.WHITE)){
+                    String message = String.format("%s is in checkmate, %s won the game!", gameModel.getWhiteUsername(), gameModel.getBlackUsername());
+                    connections.broadcastNotification(command, message);
+                }else if(game.isInCheckmate(ChessGame.TeamColor.BLACK)){
+                    String message = String.format("%s is in checkmate, %s won the game!", gameModel.getBlackUsername(), gameModel.getWhiteUsername());
+                    connections.broadcastNotification(command, message);
+                }else if(game.isInCheck(ChessGame.TeamColor.WHITE)) {
+                    String message = String.format("%s is in check", gameModel.getWhiteUsername());
+                    connections.broadcastNotification(command, message);
+                }else if(game.isInCheck(ChessGame.TeamColor.BLACK)){
+                    String message = String.format("%s is in check", gameModel.getBlackUsername());
+                    connections.broadcastNotification(command, message);
+                }
             }
+
         }catch(Exception e){
             throw new ResponseException(500, "Error: makeMove Handler, Problem: " + e.getMessage());
         }

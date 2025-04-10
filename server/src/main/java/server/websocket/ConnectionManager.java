@@ -46,6 +46,7 @@ public class ConnectionManager {
                             c.send(new Gson().toJson(msg));
                         }
                     }else {
+                        //TODO remove player that dc'd from the game in db so new player can join
                         removeList.add(c);
                     }
                 }
@@ -65,6 +66,7 @@ public class ConnectionManager {
                         ErrorMessage errorMessage = new ErrorMessage("Error: " + message);
                         c.send(new Gson().toJson(errorMessage));
                     }else{
+                        //TODO remove player that dc'd from the game in db so new player can join
                         removeList.add(c);
                     }
                 }
@@ -119,6 +121,7 @@ public class ConnectionManager {
                             NotificationMessage notificationMessage = new NotificationMessage(message);
                             c.send(new Gson().toJson(notificationMessage));
                         }else{
+                            //TODO remove player that dc'd from the game in db so new player can join
                             removeList.add(c);
                         }
                     }
@@ -134,6 +137,25 @@ public class ConnectionManager {
     public String positionToNotation(ChessPosition position){
         String[] letters = {"a", "b", "c", "d", "e", "f", "g", "h"};
         return letters[position.getColumn() - 1] + position.getRow();
+    }
+
+    public <T extends UserGameCommand> void broadcastNotification(T command, String message) throws ResponseException{
+        var removeList = new ArrayList<Connection>();
+        for(var c: connections.values()){
+            try{
+                if(c.gameID == command.getGameID()){
+                    if(c.session.isOpen()){
+                        c.send(new Gson().toJson(new NotificationMessage(message)));
+                    }else{
+                        //TODO remove player that dc'd from the game in db so new player can join
+                        removeList.add(c);
+                    }
+                }
+            }catch(Exception e){
+                throw new ResponseException(500, "Error: Couldn't send message to client");
+            }
+        }
+        removeConnections(removeList);
     }
 
     public void removeConnections(List<Connection> removeList){
