@@ -267,13 +267,40 @@ public class ChessClient {
             try{
                 ChessPosition start = notationToPosition(params[0]);
                 ChessPosition end = notationToPosition(params[1]);
-                ChessMove move = new ChessMove(start, end, null);
+                ChessPiece movedPiece = game.getGame().getBoard().getPiece(start);
+                ChessPiece.PieceType promotionPiece = null;
+                if((end.getRow() == 8 || end.getRow() == 1 )&& movedPiece.getPieceType() == ChessPiece.PieceType.PAWN){
+                    boolean loop = true;
+                    while(loop){
+                        System.out.println(SET_TEXT_COLOR_GREEN + "Promote pawn to what piece type?\nOptions: rook, knight, bishop, queen");
+                        Scanner scanner = new Scanner(System.in);
+                        String promotionPieceString = scanner.nextLine();
+                        ChessPiece.PieceType pieceType = getType(promotionPieceString);
+                        if(pieceType != null){
+                            loop = false;
+                            promotionPiece = pieceType;
+                        }else{
+                            System.out.println(SET_TEXT_COLOR_RED + "Invalid piece type" + RESET_TEXT_COLOR);
+                        }
+                    }
+                }
+                ChessMove move = new ChessMove(start, end, promotionPiece);
                 wsFacade.makeMove(authToken, game.getGameID(), move);
                 return "";
             }catch(Exception e){
                 throw new ResponseException(400, "Error: couldn't make move, Problem: " + e.getMessage());
             }
         }
+    }
+
+    public ChessPiece.PieceType getType(String pieceType){
+        return switch(pieceType){
+            case "rook" -> ChessPiece.PieceType.ROOK;
+            case "knight" -> ChessPiece.PieceType.KNIGHT;
+            case "bishop" -> ChessPiece.PieceType.BISHOP;
+            case "queen" -> ChessPiece.PieceType.QUEEN;
+            default -> null;
+        };
     }
 
     public String resign() throws ResponseException{
