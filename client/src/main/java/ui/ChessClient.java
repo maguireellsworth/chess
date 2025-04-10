@@ -285,7 +285,7 @@ public class ChessClient {
             return "Must be in a game to use command 'resign'\n" + help();
         }else{
             try{
-                invertGameIsOver();
+                setGameIsOver(true);
                 wsFacade.resign(authToken, game.getGameID());
                 return "";
             }catch(Exception e){
@@ -358,8 +358,8 @@ public class ChessClient {
         }
     }
 
-    public void invertGameIsOver(){
-        gameIsOver = !gameIsOver;
+    public void setGameIsOver(boolean bool){
+        gameIsOver = bool;
     }
 
     public ChessPosition notationToPosition(String space){

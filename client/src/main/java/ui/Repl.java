@@ -52,7 +52,7 @@ public class Repl implements NotificationHandler {
         if(message instanceof NotificationMessage){
             System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
             if(message.getMessage().contains("checkmate") || message.getMessage().contains("resigned")){
-                client.invertGameIsOver();
+                client.setGameIsOver(true);
             }
             printPrompt();
         }else if(message instanceof LoadGameMessage){
