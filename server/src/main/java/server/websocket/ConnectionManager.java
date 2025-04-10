@@ -63,7 +63,7 @@ public class ConnectionManager {
             try{
                 if(c.gameID == command.getGameID() && c.session == session){
                     if(c.session.isOpen()) {
-                        ErrorMessage errorMessage = new ErrorMessage("Error: " + message);
+                        ErrorMessage errorMessage = new ErrorMessage(message);
                         c.send(new Gson().toJson(errorMessage));
                     }else{
                         //TODO remove player that dc'd from the game in db so new player can join

@@ -13,11 +13,21 @@ import java.util.List;
 public class ChessGame {
     TeamColor teamTurn;
     ChessBoard chessBoard;
+    boolean gameIsOver;
 
     public ChessGame() {
         this.teamTurn = TeamColor.WHITE;
         this.chessBoard = new ChessBoard();
         chessBoard.resetBoard();
+        this.gameIsOver = false;
+    }
+
+    public void setGameIsOver(boolean gameIsOver) {
+        this.gameIsOver = gameIsOver;
+    }
+
+    public boolean isGameIsOver() {
+        return gameIsOver;
     }
 
     /**

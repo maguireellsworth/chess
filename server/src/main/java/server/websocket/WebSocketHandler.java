@@ -123,22 +123,32 @@ public class WebSocketHandler {
             ChessPiece piece = gameModel.getGame().getBoard().getPiece(command.getMove().getStartPosition());
             boolean moveIsOk = checkMove(command, session, gameModel, commandUsername, piece);
             if(moveIsOk){
-                gameModel.getGame().makeMove(command.getMove());
-                gameDao.updateGame(gameModel);
-                connections.broadcastMove(command, gameModel.getGame(), commandUsername);
-                if(game.isInCheckmate(ChessGame.TeamColor.WHITE)){
-                    String message = String.format("%s is in checkmate, %s won the game!", gameModel.getWhiteUsername(), gameModel.getBlackUsername());
-                    connections.broadcastNotification(command, message);
-                }else if(game.isInCheckmate(ChessGame.TeamColor.BLACK)){
-                    String message = String.format("%s is in checkmate, %s won the game!", gameModel.getBlackUsername(), gameModel.getWhiteUsername());
-                    connections.broadcastNotification(command, message);
-                }else if(game.isInCheck(ChessGame.TeamColor.WHITE)) {
-                    String message = String.format("%s is in check", gameModel.getWhiteUsername());
-                    connections.broadcastNotification(command, message);
-                }else if(game.isInCheck(ChessGame.TeamColor.BLACK)){
-                    String message = String.format("%s is in check", gameModel.getBlackUsername());
-                    connections.broadcastNotification(command, message);
+                if(!game.isGameIsOver()){
+                    gameModel.getGame().makeMove(command.getMove());
+                    gameDao.updateGame(gameModel);
+                    connections.broadcastMove(command, gameModel.getGame(), commandUsername);
+                    if(game.isInCheckmate(ChessGame.TeamColor.WHITE)){
+                        String message = String.format("%s is in checkmate, %s won the game!", gameModel.getWhiteUsername(), gameModel.getBlackUsername());
+                        connections.broadcastNotification(command, message);
+                        gameModel.getGame().setGameIsOver(true);
+                        gameDao.updateGame(gameModel);
+                    }else if(game.isInCheckmate(ChessGame.TeamColor.BLACK)){
+                        String message = String.format("%s is in checkmate, %s won the game!", gameModel.getBlackUsername(), gameModel.getWhiteUsername());
+                        connections.broadcastNotification(command, message);
+                        gameModel.getGame().setGameIsOver(true);
+                        gameDao.updateGame(gameModel);
+                    }else if(game.isInCheck(ChessGame.TeamColor.WHITE)) {
+                        String message = String.format("%s is in check", gameModel.getWhiteUsername());
+                        connections.broadcastNotification(command, message);
+                    }else if(game.isInCheck(ChessGame.TeamColor.BLACK)){
+                        String message = String.format("%s is in check", gameModel.getBlackUsername());
+                        connections.broadcastNotification(command, message);
+                    }
+                }else{
+                    String message = "Cannot make move after the game is over";
+                    connections.broadcastError(command, session, message);
                 }
+
             }
 
         }catch(Exception e){
@@ -152,14 +162,19 @@ public class WebSocketHandler {
                 String message = "User not authorized or invalid game";
                 connections.broadcastError(command, session, message);
             }else{
-                GameModel game = gameDao.getGame(command.getGameID());
+                GameModel gameModel = gameDao.getGame(command.getGameID());
                 String commandUser = userService.getAuthTokenModel(command.getAuthToken()).getUsername();
-                if(isPlayer(game, commandUser)){
-                    String message = String.format("%s has resigned, game is over", commandUser);
-                    connections.broadcastNotification(command, message);
-                }else{
+                if(!isPlayer(gameModel, commandUser)){
                     String message = "Observers cannot resign";
                     connections.broadcastError(command, session, message);
+                }else if(gameModel.getGame().isGameIsOver()){
+                    String message = "Game is over. You cannot resign";
+                    connections.broadcastError(command, session, message);
+                }else{
+                    String message = String.format("%s has resigned, game is over", commandUser);
+                    connections.broadcastNotification(command, message);
+                    gameModel.getGame().setGameIsOver(true);
+                    gameDao.updateGame(gameModel);
                 }
             }
         }catch(Exception e){
@@ -177,8 +192,11 @@ public class WebSocketHandler {
             String message = "Observers cannot make moves";
             connections.broadcastError(command, session, message);
             moveIsOk = false;
-        }
-        else if(!isPlayerTurn(gameModel, commandUsername)){
+        }else if(gameModel.getGame().isGameIsOver()){
+            String message = "Game is over. No more moves may be made";
+            connections.broadcastError(command, session, message);
+            moveIsOk = false;
+        }else if(!isPlayerTurn(gameModel, commandUsername)){
             String message = "Not your turn";
             connections.broadcastError(command, session, message);
             moveIsOk = false;
