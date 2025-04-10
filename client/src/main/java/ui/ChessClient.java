@@ -17,9 +17,7 @@ import static ui.EscapeSequences.*;
 import java.io.PrintStream;
 import java.net.http.WebSocket;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class ChessClient {
     private String username = "Logged out";
@@ -235,7 +233,7 @@ public class ChessClient {
             return "Must be in a game to use command 'draw'\n" + help();
         }else{
             System.out.println(game.getGame().getTeamTurn() + "'s turn");
-            printBoard();
+            printBoard(null);
             return "";
         }
 
@@ -302,7 +300,15 @@ public class ChessClient {
         }else if(params.length != 1){
             return "Incorrect number of parameters. 'highlight' command requires parameters: <position>";
         }else{
-            return "Resign Not Implemented";
+            ChessPosition position = notationToPosition(params[0]);
+            Collection<ChessMove> validMoves = game.getGame().validMoves(position);
+            List<ChessPosition> validPositions = new ArrayList<>();
+            validPositions.add(position);
+            for(ChessMove move : validMoves){
+                validPositions.add(move.getEndPosition());
+            }
+            printBoard(validPositions);
+            return "";
         }
     }
 
@@ -379,34 +385,31 @@ public class ChessClient {
 
     public void updateGame(ChessGame game){
         this.game.setGame(game);
-        printBoard();
+        printBoard(null);
     }
 
-    public String printBoard(){
+    public void printBoard(List<ChessPosition> validMoves){
         var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-
-        //start temp variables for testing
-//        ChessBoard board = new ChessBoard();
-//        board.resetBoard();
-        //end temp variables for testing
 
         String[] letters = {" a ", " b ", " c ", " d ", " e ", " f ", " g ", " h "};
         String[] numbers = {" 1 ", " 2 ", " 3 ", " 4 ", " 5 ", " 6 ", " 7 ", " 8 "};
         if(playerColor == null || playerColor.equals("WHITE")){
-            printWhiteBoard(out, letters, numbers, game.getGame().getBoard());
+            printWhiteBoard(out, letters, numbers, game.getGame().getBoard(), validMoves);
         }else{
-            //swap letters and numbers
-            printBlackBoard(out, letters, numbers, game.getGame().getBoard());
+            printBlackBoard(out, letters, numbers, game.getGame().getBoard(), validMoves);
         }
-        return "";
     }
 
-    public void printWhiteBoard(PrintStream out, String[] letters, String[] numbers, ChessBoard board){
+    public void printWhiteBoard(PrintStream out,
+                                String[] letters,
+                                String[] numbers,
+                                ChessBoard board,
+                                List<ChessPosition> validMoves){
         printLabel(out, letters);
         for(int i = 7; i >= 0; i--){
             printRowNumber(out, i, numbers);
             for(int j = 0; j <= 7; j++){
-                printBoardRows(out, i, j, board);
+                printBoardRows(out, i, j, board, validMoves);
             }
             printRowNumber(out, i, numbers);
             reset(out);
@@ -415,13 +418,17 @@ public class ChessClient {
         printLabel(out, letters);
     }
 
-    public void printBlackBoard(PrintStream out, String[] letters, String[] numbers, ChessBoard board){
+    public void printBlackBoard(PrintStream out,
+                                String[] letters,
+                                String[] numbers,
+                                ChessBoard board,
+                                List<ChessPosition> validMoves){
         letters = reverseArray(letters);
         printLabel(out, letters);
         for(int i = 0; i <= 7; i++){
             printRowNumber(out, i, numbers);
             for(int j = 7; j >= 0; j--){
-                printBoardRows(out, i, j, board);
+                printBoardRows(out, i, j, board, validMoves);
             }
             printRowNumber(out, i, numbers);
             reset(out);
@@ -458,12 +465,25 @@ public class ChessClient {
         out.print(numbers[index]);
     }
 
-    public void printBoardRows(PrintStream out, int i, int j, ChessBoard board){
+    public void printBoardRows(PrintStream out, int i, int j, ChessBoard board, List<ChessPosition> validMoves){
         String spaceColor = null;
+        validMoves = validMoves == null ? new ArrayList<>() : validMoves;
         if(i % 2 == 0){
-            spaceColor = (j % 2 == 0) ? SET_BG_COLOR_BLUE : SET_BG_COLOR_RED;
+            if(validMoves.contains(new ChessPosition(i + 1, j + 1))){
+                spaceColor = (j % 2 == 0) ? SET_BG_COLOR_GREEN : SET_BG_COLOR_DARK_GREEN;
+            }else{
+               spaceColor = (j % 2 == 0) ? SET_BG_COLOR_BLUE : SET_BG_COLOR_RED;
+            }
         }else{
-            spaceColor = (j % 2 == 0) ? SET_BG_COLOR_RED : SET_BG_COLOR_BLUE;
+            if(validMoves.contains(new ChessPosition(i + 1, j + 1))){
+                spaceColor = (j % 2 == 0) ? SET_BG_COLOR_DARK_GREEN : SET_BG_COLOR_GREEN;
+            }else{
+                spaceColor = (j % 2 == 0) ? SET_BG_COLOR_RED : SET_BG_COLOR_BLUE;
+            }
+        }
+        //TODO make sure list isnt empty
+        if(!validMoves.isEmpty()  && validMoves.getFirst().equals(new ChessPosition(i + 1, j + 1))){
+            spaceColor = SET_BG_COLOR_MAGENTA;
         }
         out.print(spaceColor);
         ChessPiece piece = board.getPiece(new ChessPosition(i + 1, j + 1));
