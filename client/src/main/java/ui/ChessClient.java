@@ -283,9 +283,16 @@ public class ChessClient {
             return "Must be in a game to use command 'resign'\n" + help();
         }else{
             try{
-                setGameIsOver(true);
-                wsFacade.resign(authToken, game.getGameID());
-                return "";
+                System.out.println("Are you sure you want to resign?\nType yes to confirm\nType anything else to cancel");
+                Scanner scanner = new Scanner(System.in);
+                String confirm = scanner.nextLine();
+                if(confirm.equals("yes")){
+                    setGameIsOver(true);
+                    wsFacade.resign(authToken, game.getGameID());
+                    return "";
+                }else{
+                    return "Game will continue";
+                }
             }catch(Exception e){
                 throw new ResponseException(500, "Error: couldn't resign");
             }
