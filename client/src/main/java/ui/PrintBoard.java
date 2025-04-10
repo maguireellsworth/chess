@@ -123,7 +123,6 @@ public class PrintBoard {
                 spaceColor = (j % 2 == 0) ? SET_BG_COLOR_RED : SET_BG_COLOR_BLUE;
             }
         }
-        //TODO make sure list isnt empty
         if(!validMoves.isEmpty()  && validMoves.getFirst().equals(new ChessPosition(i + 1, j + 1))){
             spaceColor = SET_BG_COLOR_MAGENTA;
         }
