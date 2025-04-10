@@ -128,12 +128,14 @@ public class WebSocketHandler {
                     gameDao.updateGame(gameModel);
                     connections.broadcastMove(command, gameModel.getGame(), commandUsername);
                     if(game.isInCheckmate(ChessGame.TeamColor.WHITE)){
-                        String message = String.format("%s is in checkmate, %s won the game!", gameModel.getWhiteUsername(), gameModel.getBlackUsername());
+                        String message = String.format("%s is in checkmate, %s won the game!",
+                                gameModel.getWhiteUsername(), gameModel.getBlackUsername());
                         connections.broadcastNotification(command, message);
                         gameModel.getGame().setGameIsOver(true);
                         gameDao.updateGame(gameModel);
                     }else if(game.isInCheckmate(ChessGame.TeamColor.BLACK)){
-                        String message = String.format("%s is in checkmate, %s won the game!", gameModel.getBlackUsername(), gameModel.getWhiteUsername());
+                        String message = String.format("%s is in checkmate, %s won the game!",
+                                gameModel.getBlackUsername(), gameModel.getWhiteUsername());
                         connections.broadcastNotification(command, message);
                         gameModel.getGame().setGameIsOver(true);
                         gameDao.updateGame(gameModel);

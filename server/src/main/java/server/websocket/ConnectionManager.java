@@ -29,28 +29,32 @@ public class ConnectionManager {
 
     public void broadcastConnect(UserGameCommand command, String message, ChessGame game) throws ResponseException {
         var removeList = new ArrayList<Connection>();
+
         for (var c : connections.values()) {
             try {
-                if (c.gameID == command.getGameID()) {
-                    if(c.session.isOpen()){
-                        if (command.getAuthToken().equals(c.authToken)) {
-                            LoadGameMessage msg = new LoadGameMessage(game);
-                            c.send(new Gson().toJson(msg));
-                        } else {
-                            NotificationMessage msg = new NotificationMessage(message);
-                            c.send(new Gson().toJson(msg));
-                        }
-                    }else {
-                        //TODO remove player that dc'd from the game in db so new player can join
-                        removeList.add(c);
-                    }
+                if (c.gameID != command.getGameID()) {continue;};
+
+                if (!c.session.isOpen()) {
+                    removeList.add(c);
+                    continue;
                 }
+
+                if (command.getAuthToken().equals(c.authToken)) {
+                    LoadGameMessage msg = new LoadGameMessage(game);
+                    c.send(new Gson().toJson(msg));
+                } else {
+                    NotificationMessage msg = new NotificationMessage(message);
+                    c.send(new Gson().toJson(msg));
+                }
+
             } catch (Exception e) {
                 throw new ResponseException(500, "Error: couldn't send message to client");
             }
         }
+
         removeConnections(removeList);
     }
+
 
     public void broadcastError(UserGameCommand command, Session session, String message) throws ResponseException{
         var removeList = new ArrayList<Connection>();
@@ -61,7 +65,6 @@ public class ConnectionManager {
                         ErrorMessage errorMessage = new ErrorMessage(message);
                         c.send(new Gson().toJson(errorMessage));
                     }else{
-                        //TODO remove player that dc'd from the game in db so new player can join
                         removeList.add(c);
                     }
                 }
@@ -72,27 +75,31 @@ public class ConnectionManager {
         removeConnections(removeList);
     }
 
-    public void broadcastLeave(UserGameCommand command, String message) throws ResponseException{
+    public void broadcastLeave(UserGameCommand command, String message) throws ResponseException {
         var removeList = new ArrayList<Connection>();
-        for(var c : connections.values()){
-            try{
-                if(c.gameID == command.getGameID()){
-                    if(c.session.isOpen()){
-                        if(!command.getAuthToken().equals(c.authToken)){
-                            NotificationMessage notificationMessage = new NotificationMessage(message);
-                            c.send(new Gson().toJson(notificationMessage));
-                        }else{
-                            c.session.close();
-                            removeList.add(c);
-                        }
-                    }else{
-                        removeList.add(c);
-                    }
+
+        for (var c : connections.values()) {
+            try {
+                if (c.gameID != command.getGameID()) {continue;};
+
+                if (!c.session.isOpen()) {
+                    removeList.add(c);
+                    continue;
                 }
-            }catch(Exception e){
+
+                if (!command.getAuthToken().equals(c.authToken)) {
+                    NotificationMessage notificationMessage = new NotificationMessage(message);
+                    c.send(new Gson().toJson(notificationMessage));
+                } else {
+                    c.session.close();
+                    removeList.add(c);
+                }
+
+            } catch (Exception e) {
                 throw new ResponseException(500, "Error: Couldn't send message to client");
             }
         }
+
         removeConnections(removeList);
     }
 
@@ -101,27 +108,25 @@ public class ConnectionManager {
         LoadGameMessage loadGameMessage = new LoadGameMessage(game);
         for(var c : connections.values()){
             try{
-                if(c.gameID == command.getGameID()){
+                if(c.gameID != command.getGameID()) {continue;};
                     //send LOAD_GAME to everyone in the game
-                    if(c.session.isOpen()){
-                        c.send(new Gson().toJson(loadGameMessage));
-                    }
-                    //send Notification to everyone except the player that made the move
-                    if (!c.authToken.equals(command.getAuthToken())) {
-                        if(c.session.isOpen()){
-                            String pieceType = game.getBoard().getPiece(command.getMove().getEndPosition()).getPieceType().toString();
-                            String startPosition = positionToNotation(command.getMove().getStartPosition());
-                            String endPosition = positionToNotation(command.getMove().getEndPosition());
-                            String message = String.format("%s moved %s from %s to %s", commandUser, pieceType, startPosition, endPosition);
-                            NotificationMessage notificationMessage = new NotificationMessage(message);
-                            c.send(new Gson().toJson(notificationMessage));
-                        }else{
-                            //TODO remove player that dc'd from the game in db so new player can join
-                            removeList.add(c);
-                        }
-                    }
-                    //TODO if in check or stalemate send notificationMessage
+                if(c.session.isOpen()){
+                    c.send(new Gson().toJson(loadGameMessage));
                 }
+                //send Notification to everyone except the player that made the move
+                if (!c.authToken.equals(command.getAuthToken())) {
+                    if(c.session.isOpen()){
+                        String pieceType = game.getBoard().getPiece(command.getMove().getEndPosition()).getPieceType().toString();
+                        String startPosition = positionToNotation(command.getMove().getStartPosition());
+                        String endPosition = positionToNotation(command.getMove().getEndPosition());
+                        String message = String.format("%s moved %s from %s to %s", commandUser, pieceType, startPosition, endPosition);
+                        NotificationMessage notificationMessage = new NotificationMessage(message);
+                        c.send(new Gson().toJson(notificationMessage));
+                    }else{
+                        removeList.add(c);
+                    }
+                }
+
             }catch(Exception e){
                 throw new ResponseException(500, "Error: Couldn't send message to client");
             }
@@ -138,13 +143,11 @@ public class ConnectionManager {
         var removeList = new ArrayList<Connection>();
         for(var c: connections.values()){
             try{
-                if(c.gameID == command.getGameID()){
-                    if(c.session.isOpen()){
-                        c.send(new Gson().toJson(new NotificationMessage(message)));
-                    }else{
-                        //TODO remove player that dc'd from the game in db so new player can join
-                        removeList.add(c);
-                    }
+                if(c.gameID != command.getGameID()) {continue;}
+                if(c.session.isOpen()){
+                    c.send(new Gson().toJson(new NotificationMessage(message)));
+                }else{
+                    removeList.add(c);
                 }
             }catch(Exception e){
                 throw new ResponseException(500, "Error: Couldn't send message to client");

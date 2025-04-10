@@ -74,12 +74,12 @@ public class MYSQLGameDao implements GameDao{
                 preparedStatement.setInt(1, gameID);
                 try(var result = preparedStatement.executeQuery()){
                     if(result.next()){
-                        int ID = result.getInt("game_id");
+                        int id = result.getInt("game_id");
                         String whiteUsername = result.getString("white_username");
                         String blackUsername = result.getString("black_username");
                         String gameName = result.getString("game_name");
                         ChessGame game = new Gson().fromJson(result.getString("game"), ChessGame.class);
-                        return new GameModel(game, gameName, ID, whiteUsername, blackUsername);
+                        return new GameModel(game, gameName, id, whiteUsername, blackUsername);
                     }else{
                         return null;
                     }
