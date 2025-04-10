@@ -57,6 +57,7 @@ public class WebSocketHandler {
             case CONNECT -> joinGame((ConnectCommand) command, session);
             case LEAVE -> leaveGame((LeaveCommand) command, session);
             case MAKE_MOVE -> makeMove((MakeMoveCommand) command, session);
+            case RESIGN -> resign(command, session);
         }
     }
 
@@ -142,6 +143,27 @@ public class WebSocketHandler {
 
         }catch(Exception e){
             throw new ResponseException(500, "Error: makeMove Handler, Problem: " + e.getMessage());
+        }
+    }
+
+    public void resign(UserGameCommand command, Session session) throws ResponseException{
+        try{
+            if(isNotValidCommand(command)){
+                String message = "User not authorized or invalid game";
+                connections.broadcastError(command, session, message);
+            }else{
+                GameModel game = gameDao.getGame(command.getGameID());
+                String commandUser = userService.getAuthTokenModel(command.getAuthToken()).getUsername();
+                if(isPlayer(game, commandUser)){
+                    String message = String.format("%s has resigned, game is over", commandUser);
+                    connections.broadcastNotification(command, message);
+                }else{
+                    String message = "Observers cannot resign";
+                    connections.broadcastError(command, session, message);
+                }
+            }
+        }catch(Exception e){
+            throw new ResponseException(500, "Error: resign, Problem: " + e.getMessage());
         }
     }
 

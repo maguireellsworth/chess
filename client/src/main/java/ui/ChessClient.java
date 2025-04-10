@@ -278,13 +278,20 @@ public class ChessClient {
         }
     }
 
-    public String resign(){
+    public String resign() throws ResponseException{
         if(!isLoggedIn()){
             return "Must be logged in to use command 'resign'\n" + help();
         }else if(!isInGame()){
             return "Must be in a game to use command 'resign'\n" + help();
         }else{
-            return "Resign Not Implemented";
+            try{
+                invertGameIsOver();
+                wsFacade.resign(authToken, game.getGameID());
+                return "";
+            }catch(Exception e){
+                throw new ResponseException(500, "Error: couldn't resign");
+            }
+
         }
     }
     public String highlight(String... params){
