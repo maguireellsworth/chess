@@ -4,17 +4,12 @@ import chess.ChessGame;
 import chess.ChessPosition;
 import com.google.gson.Gson;
 import exception.ResponseException;
-import models.AuthTokenModel;
-import models.GameModel;
-import org.eclipse.jetty.server.Authentication;
 import org.eclipse.jetty.websocket.api.Session;
-import org.glassfish.grizzly.utils.EchoFilter;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
-import websocket.messages.ServerMessage;
 
 import java.util.ArrayList;
 import java.util.List;
