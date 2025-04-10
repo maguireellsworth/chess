@@ -51,6 +51,9 @@ public class Repl implements NotificationHandler {
     public <T extends ServerMessage> void notify(T message) {
         if(message instanceof NotificationMessage){
             System.out.println(SET_TEXT_COLOR_YELLOW + message.getMessage());
+            if(message.getMessage().contains("checkmate") || message.getMessage().contains("resigned")){
+                client.invertGameIsOver();
+            }
             printPrompt();
         }else if(message instanceof LoadGameMessage){
             System.out.println("\n" + ((LoadGameMessage) message).getGame().getTeamTurn() + "'s turn");

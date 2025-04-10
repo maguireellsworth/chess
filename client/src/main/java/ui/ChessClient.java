@@ -31,6 +31,7 @@ public class ChessClient {
     private String playerColor = null;
     private WebSocketFacade wsFacade;
     private NotificationHandler notificationHandler;
+    private boolean gameIsOver;
 
     public ChessClient(String serverUrl, NotificationHandler notificationHandler){
         serverFacade = new ServerFacade(serverUrl);
@@ -183,6 +184,7 @@ public class ChessClient {
                 //server
                 game = gameList.get(Integer.parseInt(params[0]));
                 playerColor = params[1].toUpperCase();
+                gameIsOver = false;
                 JoinRequest joinRequest = new JoinRequest(params[1].toUpperCase(), game.getGameID());
                 joinRequest.setAuthTokenModel(new AuthTokenModel(username, authToken));
                 serverFacade.joinGame(joinRequest);
@@ -327,15 +329,30 @@ public class ChessClient {
                 - resign
                 - highlight <position>
                 """;
+        String gameOver = """
+                Options;
+                - help
+                - draw
+                - leave
+                - highlight <position>
+                """;
         if(isLoggedIn()){
             if(isInGame()){
-                return inGame;
+                if(gameIsOver){
+                    return gameOver;
+                }else {
+                    return inGame;
+                }
             }else{
                 return postLogin;
             }
         }else{
             return prelogin;
         }
+    }
+
+    public void invertGameIsOver(){
+        gameIsOver = !gameIsOver;
     }
 
     public ChessPosition notationToPosition(String space){
